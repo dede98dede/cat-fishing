@@ -1,0 +1,12 @@
+{
+  "name": "desktop-cat-fishing-online",
+  "version": "1.0.0",
+  "description": "桌面摸鱼猫 — 好友联机鱼塘 (零依赖 Node.js WebSocket 版)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

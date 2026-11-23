@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>桌面摸鱼猫 — 900海鱼·6大海域·猫咪进化·联机鱼塘</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    input { user-select: text; -webkit-user-select: text; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+      color: #f8fafc;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .widget-mode-shell {
+      max-width: 390px !important;
+      margin: 1rem auto !important;
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); border-radius: 99px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.35); border-radius: 99px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.55); }
+  </style>
+</head>
+<body class="p-2 sm:p-4 flex flex-col items-center justify-start">
+
+  <div id="appShell" class="w-full max-w-5xl transition-all duration-300">
+
+    <!-- Top Header Bar -->
+    <header class="glass-panel rounded-2xl px-3.5 py-2.5 mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-xl">🐱</div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">桌面摸鱼猫</h1>
+            <button id="roomBadgeBtn" class="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 hover:bg-emerald-500/30 transition" title="查看联机房间">
+              <span id="connDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+              <span id="roomBadgeText">房间: public · 3人</span>
+            </button>
+            <span id="zoneHeaderBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30">🗺️ 浅海珊瑚湾</span>
+            <button id="marketHeaderBtn" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 hover:bg-amber-500/30 transition">📈 鱼市行情</button>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-tight">900种海鱼 · 6大海域 · 黄金鱼潮 · 猫咪进化</p>
+        </div>
+      </div>
+
+      <!-- Resource Pills -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <div class="flex items-center gap-1 bg-slate-900/70 border border-amber-500/30 px-2.5 py-1 rounded-full">
+          <span class="text-sm">🪙</span>
+          <span id="coinDisplay" class="text-sm font-bold text-amber-300 tabular-nums">80</span>
+          <span id="cpsDisplay" class="text-[11px] text-emerald-400 font-medium">(+0/s)</span>
+        </div>
+        <div class="flex items-center gap-1 bg-slate-900/70 border border-fuchsia-500/30 px-2 py-1 rounded-full" title="远航珍珠：每颗永久+20%全局收益">
+          <span class="text-xs">🦪</span>
+          <span id="pearlDisplay" class="text-xs font-bold text-fuchsia-300 tabular-nums">0</span>
+        </div>
+        <div class="flex items-center gap-1 bg-slate-900/70 border border-sky-500/30 px-2 py-1 rounded-full">
+          <span class="text-xs">🐟</span>
+          <span id="tankCountDisplay" class="text-xs font-semibold text-sky-300 tabular-nums">0/5</span>
+        </div>
+        <button id="toggleModeBtn" class="px-2 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600/60 text-xs font-medium text-slate-200 transition active:scale-95">
+          🪟 小窗
+        </button>
+        <button id="muteBtn" class="px-2 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600/60 text-xs font-medium text-slate-200 transition active:scale-95">
+          🔊 音效
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Layout Grid -->
+    <div id="mainGrid" class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+
+      <!-- Left: Canvas Scene + Fever Bar + Controls -->
+      <div id="sceneCol" class="lg:col-span-7 flex flex-col gap-3">
+        <div class="glass-panel rounded-2xl p-2.5 relative overflow-hidden">
+          <!-- Cat Status Strip -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="catNameBadge" class="text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg">Lv.1 橘座</span>
+              <span id="catTierBadge" class="text-[10px] font-semibold bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-400/30 px-2 py-0.5 rounded-lg">✨ 幼猫学徒</span>
+              <div class="flex items-center gap-1 text-xs text-slate-300">
+                <span>❤️</span>
+                <div class="w-11 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                  <div id="moodBar" class="h-full bg-rose-400 transition-all duration-300" style="width: 85%"></div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 text-xs text-slate-300">
+                <span>🍖</span>
+                <div class="w-11 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                  <div id="hungerBar" class="h-full bg-amber-400 transition-all duration-300" style="width: 80%"></div>
+                </div>
+              </div>
+            </div>
+            <div id="coopBonusPill" class="text-[11px] text-emerald-300 font-medium">
+              🤝 联机 +10%
+            </div>
+          </div>
+
+          <!-- Canvas Wrapper -->
+          <div id="canvasContainer" class="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden border border-slate-700/80 bg-slate-900 cursor-pointer">
+            <canvas id="gameCanvas" class="block w-full h-full"></canvas>
+            <div id="biteAlert" class="hidden pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-lg animate-bounce">
+              ❗ 海鱼咬钩了！快点收竿！
+            </div>
+            <div id="feverBanner" class="hidden pointer-events-none absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-lg animate-pulse">
+              🔥 黄金鱼潮 x3 (<span id="feverRemainTxt">20</span>s)
+            </div>
+            <div id="pomoOverlayBadge" class="hidden pointer-events-none absolute bottom-2.5 left-2.5 bg-indigo-600/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow">
+              ⏱️ 专注中 <span id="pomoTimeMini">25:00</span>
+            </div>
+            <div id="autoBadge" class="hidden pointer-events-none absolute top-2.5 right-2.5 bg-emerald-500/90 text-slate-950 text-[11px] font-bold px-2 py-0.5 rounded-full shadow">
+              ⚙️ 自动海钓中
+            </div>
+          </div>
+
+          <!-- Fever Energy Strip -->
+          <div class="mt-2 flex items-center gap-2 px-0.5">
+            <span class="text-[11px] font-semibold text-amber-300 shrink-0">🔥 鱼潮能量</span>
+            <div class="flex-1 h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+              <div id="feverBar" class="h-full bg-gradient-to-r from-amber-400 via-orange-400 to-rose-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <button id="feverBtn" disabled class="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-500 border border-slate-700 transition">
+              充能中 0%
+            </button>
+          </div>
+
+          <!-- Primary Action Buttons -->
+          <div class="grid grid-cols-4 gap-2 mt-2">
+            <button id="fishBtn" class="col-span-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-bold text-sm shadow-lg shadow-sky-500/20 transition active:scale-[0.98] flex items-center justify-center gap-1.5">
+              <span>🎣</span>
+              <span id="fishBtnText">抛竿海钓 (空格)</span>
+            </button>
+            <button id="petBtn" class="py-2.5 px-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 text-rose-200 font-semibold text-xs sm:text-sm transition active:scale-[0.98] flex items-center justify-center gap-1">
+              <span>🐾</span>
+              <span>撸猫</span>
+            </button>
+            <button id="openChestBtn" class="py-2.5 px-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 text-amber-200 font-semibold text-xs sm:text-sm transition active:scale-[0.98] flex items-center justify-center gap-1">
+              <span>🎁</span>
+              <span id="chestCountTxt">宝箱(0)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Latest Catch Action Card -->
+        <div id="catchCard" class="glass-panel rounded-2xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 min-h-[76px]">
+          <div class="flex items-center gap-2.5">
+            <div id="catchIcon" class="w-11 h-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-2xl shrink-0">🎣</div>
+            <div>
+              <div id="catchTitle" class="text-sm font-bold text-slate-200">900种海洋鱼 · 6大海域等你探索</div>
+              <div id="catchDesc" class="text-xs text-slate-400">攒满鱼潮能量可开启 3 倍爆率，捞到沉船宝箱可开出稀有大鱼与珍珠！</div>
+            </div>
+          </div>
+          <div id="catchActions" class="hidden flex items-center gap-1.5 w-full sm:w-auto shrink-0">
+            <button id="keepFishBtn" class="flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-200 text-xs font-semibold transition">
+              放入鱼缸
+            </button>
+            <button id="feedCatBtn" class="flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 text-xs font-semibold transition">
+              喂小猫
+            </button>
+            <button id="craftCanBtn" class="flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg bg-fuchsia-500/20 hover:bg-fuchsia-500/30 border border-fuchsia-400/40 text-fuchsia-200 text-xs font-semibold transition">
+              做罐头
+            </button>
+            <button id="sellCatchBtn" class="flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-semibold transition">
+              卖出
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: 6-Tab Rich Progression Panel -->
+      <div id="panelCol" class="lg:col-span-5 glass-panel rounded-2xl p-3 flex flex-col h-[480px] lg:h-[530px]">
+        <!-- 6 Compact Tabs -->
+        <div class="grid grid-cols-6 gap-1 bg-slate-900/80 p-1 rounded-xl mb-2.5 shrink-0">
+          <button data-tab="play" class="tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition bg-sky-500 text-slate-950">🎯玩法</button>
+          <button data-tab="shop" class="tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition text-slate-300 hover:text-white">🛒升级</button>
+          <button data-tab="cat" class="tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition text-slate-300 hover:text-white">🐱猫咪</button>
+          <button data-tab="tank" class="tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition text-slate-300 hover:text-white">🐠鱼缸</button>
+          <button data-tab="dex" class="tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition text-slate-300 hover:text-white">📖图鉴</button>
+          <button data-tab="online" class="tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition text-slate-300 hover:text-white">🌐联机</button>
+        </div>
+
+        <!-- Tab Content Area -->
+        <div id="tabContent" class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-2">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Footer Controls -->
+        <div class="pt-2.5 mt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
+          <span id="saveStatus">自动存档已开启 · 实时联机中</span>
+          <button id="resetBtn" class="text-slate-400 hover:text-rose-400 transition underline">重置进度</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastLayer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- In-page Modal -->
+  <div id="modalOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-600/60">
+      <h3 id="modalTitle" class="text-base font-bold text-white mb-1.5">提示</h3>
+      <p id="modalBody" class="text-sm text-slate-300 mb-4 leading-relaxed"></p>
+      <div class="flex justify-end gap-2">
+        <button id="modalCancelBtn" class="hidden px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">取消</button>
+        <button id="modalConfirmBtn" class="px-4 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // 1. 900 Marine Fish Species + 6 Ocean Zones
+    // =========================================================
+    const RARITY_ORDER = ['mythic', 'legendary', 'epic', 'rare', 'uncommon', 'common'];
+    const RARITY_META = {
+      common:    { label: '普通', tag: 'N',   rank: 1, count: 300, color: '#94a3b8', badge: 'bg-slate-700 text-slate-200', mult: 1.0,  basePrice: 12,   baseCps: 0.7,  baseExp: 9   },
+      uncommon:  { label: '优良', tag: 'R',   rank: 2, count: 220, color: '#34d399', badge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30', mult: 1.8, basePrice: 28, baseCps: 1.7, baseExp: 18 },
+      rare:      { label: '稀有', tag: 'SR',  rank: 3, count: 170, color: '#38bdf8', badge: 'bg-sky-500/20 text-sky-300 border border-sky-400/30', mult: 3.2, basePrice: 68, baseCps: 4.2, baseExp: 36 },
+      epic:      { label: '史诗', tag: 'SSR', rank: 4, count: 110, color: '#c084fc', badge: 'bg-purple-500/20 text-purple-300 border border-purple-400/30', mult: 6.0, basePrice: 185, baseCps: 11.5, baseExp: 78 },
+      legendary: { label: '传说', tag: 'UR',  rank: 5, count: 70,  color: '#fbbf24', badge: 'bg-amber-500/20 text-amber-300 border border-amber-400/30', mult: 12.0, basePrice: 520, baseCps: 30, baseExp: 180 },
+      mythic:    { label: '神话', tag: 'EX',  rank: 6, count: 30,  color: '#f472b6', badge: 'bg-pink-500/20 text-pink-300 border border-pink-400/40', mult: 25.0, basePrice: 1450, baseCps: 85, baseExp: 420 }
+    };
+
+    const OCEAN_ZONES = [
+      { id: 'coral',    name: '浅海珊瑚湾', icon: '🏝️', cost: 0,      mult: 1.0,  luckBonus: 0,    skyTop: '#0f172a', skyBot: '#1e3a5f', waterTop: 'rgba(14,116,144,0.85)', waterMid: 'rgba(12,74,110,0.94)', desc: '风平浪静的起点海域，适合新手海钓' },
+      { id: 'kelp',     name: '翡翠海带林', icon: '🌿', cost: 500,    mult: 1.45, luckBonus: 0.06, skyTop: '#064e3b', skyBot: '#0f766e', waterTop: 'rgba(13,148,136,0.85)', waterMid: 'rgba(17,94,89,0.95)', desc: '海鱼产币 ×1.45，优良/稀有鱼明显变多' },
+      { id: 'aurora',   name: '荧光极光海', icon: '🌌', cost: 2500,   mult: 2.3,  luckBonus: 0.14, skyTop: '#1e1b4b', skyBot: '#4c1d95', waterTop: 'rgba(67,56,202,0.82)',  waterMid: 'rgba(30,27,75,0.95)', desc: '海鱼产币 ×2.3，极光笼罩易出荧光史诗鱼' },
+      { id: 'wreck',    name: '沉船宝藏礁', icon: '🏴‍☠️', cost: 12000,  mult: 3.8,  luckBonus: 0.22, skyTop: '#292524', skyBot: '#7c2d12', waterTop: 'rgba(154,52,18,0.72)',  waterMid: 'rgba(28,25,23,0.95)', desc: '海鱼产币 ×3.8，沉船宝箱捞出概率翻倍！' },
+      { id: 'abyss',    name: '马里亚纳深渊', icon: '🕳️', cost: 60000,  mult: 6.5,  luckBonus: 0.34, skyTop: '#020617', skyBot: '#1e1b4b', waterTop: 'rgba(30,41,59,0.88)',   waterMid: 'rgba(2,6,23,0.98)',   desc: '海鱼产币 ×6.5，深海传说巨兽出没地' },
+      { id: 'atlantis', name: '亚特兰蒂斯', icon: '🔱', cost: 300000, mult: 12.0, luckBonus: 0.50, skyTop: '#312e81', skyBot: '#86198f', waterTop: 'rgba(162,28,175,0.75)', waterMid: 'rgba(49,46,129,0.96)', desc: '海鱼产币 ×12，神话 EX 鱼类圣地！' }
+    ];
+
+    const OCEAN_BASE_FISH = [
+      { name: '沙丁鱼', emoji: '🐟', shape: 'slim' }, { name: '秋刀鱼', emoji: '🐟', shape: 'slim' },
+      { name: '鲭鱼', emoji: '🐟', shape: 'slim' }, { name: '比目鱼', emoji: '🐠', shape: 'flat' },
+      { name: '多宝鱼', emoji: '🐠', shape: 'flat' }, { name: '小丑鱼', emoji: '🐠', shape: 'round' },
+      { name: '蓝唐王鱼', emoji: '🐟', shape: 'round' }, { name: '蝴蝶鱼', emoji: '🐠', shape: 'round' },
+      { name: '神仙鱼', emoji: '🐠', shape: 'round' }, { name: '石斑鱼', emoji: '🐟', shape: 'round' },
+      { name: '真鲷', emoji: '🐟', shape: 'round' }, { name: '黑鲷', emoji: '🐟', shape: 'round' },
+      { name: '海马', emoji: '🐠', shape: 'slim' }, { name: '刺河豚', emoji: '🐡', shape: 'round' },
+      { name: '箱鲀', emoji: '🐡', shape: 'round' }, { name: '狮子鱼', emoji: '🐠', shape: 'round' },
+      { name: '海鳗', emoji: '🐍', shape: 'long' }, { name: '蓝鳍金枪鱼', emoji: '🐟', shape: 'shark' },
+      { name: '黄鳍金枪鱼', emoji: '🐟', shape: 'shark' }, { name: '大西洋旗鱼', emoji: '🐟', shape: 'shark' },
+      { name: '剑鱼', emoji: '🐟', shape: 'shark' }, { name: '蝠鲼', emoji: '🦈', shape: 'flat' },
+      { name: '魔鬼鱼', emoji: '🦈', shape: 'flat' }, { name: '双髻鲨', emoji: '🦈', shape: 'shark' },
+      { name: '大白鲨', emoji: '🦈', shape: 'shark' }, { name: '鲸鲨', emoji: '🐋', shape: 'shark' },
+      { name: '翻车鱼', emoji: '🐡', shape: 'round' }, { name: '皇带鱼', emoji: '🐉', shape: 'long' },
+      { name: '腔棘鱼', emoji: '🐟', shape: 'round' }, { name: '深海琵琶鱼', emoji: '🏮', shape: 'round' },
+      { name: '荧光灯笼鱼', emoji: '🏮', shape: 'round' }, { name: '海月水母', emoji: '🪼', shape: 'jelly' },
+      { name: '狮鬃水母', emoji: '🪼', shape: 'jelly' }, { name: '灯塔水母', emoji: '🪼', shape: 'jelly' },
+      { name: '蓝环章鱼', emoji: '🐙', shape: 'jelly' }, { name: '大王乌贼', emoji: '🦑', shape: 'long' },
+      { name: '鹦鹉螺', emoji: '🐚', shape: 'round' }, { name: '草海龙', emoji: '🐉', shape: 'long' },
+      { name: '叶海龙', emoji: '🐉', shape: 'long' }, { name: '虎鲸', emoji: '🐳', shape: 'shark' },
+      { name: '蓝鲸宝宝', emoji: '🐋', shape: 'shark' }, { name: '独角鲸', emoji: '🐋', shape: 'shark' },
+      { name: '白鲸', emoji: '🐳', shape: 'shark' }, { name: '儒艮', emoji: '🦭', shape: 'round' },
+      { name: '绿海龟', emoji: '🐢', shape: 'flat' }, { name: '玳瑁龟', emoji: '🐢', shape: 'flat' },
+      { name: '飞鱼', emoji: '🐟', shape: 'slim' }, { name: '炮弹鱼', emoji: '🐡', shape: 'round' },
+      { name: '苏眉鱼', emoji: '🐠', shape: 'round' }, { name: '鹦嘴鱼', emoji: '🐠', shape: 'round' },
+      { name: '海鲈鱼', emoji: '🐟', shape: 'slim' }, { name: '大西洋鳕鱼', emoji: '🐟', shape: 'slim' },
+      { name: '三文鱼', emoji: '🐟', shape: 'slim' }, { name: '银鲳鱼', emoji: '🐟', shape: 'flat' },
+      { name: '东海带鱼', emoji: '🐟', shape: 'long' }, { name: '马鲛鱼', emoji: '🐟', shape: 'slim' },
+      { name: '龙趸石斑', emoji: '🐟', shape: 'round' }, { name: '红珊瑚鲷', emoji: '🐠', shape: 'round' },
+      { name: '电鳐', emoji: '⚡', shape: 'flat' }, { name: '海洋龙鱼', emoji: '🐉', shape: 'long' }
+    ];
+
+    const OCEAN_PREFIXES = [
+      { prefix: '近海', hueShift: 0, zone: '浅海湾' }, { prefix: '潮汐', hueShift: 18, zone: '潮间带' },
+      { prefix: '浅礁', hueShift: 36, zone: '珊瑚礁' }, { prefix: '海藻', hueShift: 62, zone: '海带林' },
+      { prefix: '银鳞', hueShift: 185, zone: '碧蓝海' }, { prefix: '蔚蓝', hueShift: 205, zone: '外海区' },
+      { prefix: '暖流', hueShift: 25, zone: '黑潮带' }, { prefix: '珊瑚', hueShift: 340, zone: '红珊瑚海' },
+      { prefix: '暮光', hueShift: 245, zone: '中层海' }, { prefix: '荧光', hueShift: 165, zone: '荧光海' },
+      { prefix: '极光', hueShift: 195, zone: '极地海' }, { prefix: '深渊', hueShift: 270, zone: '马里亚纳' },
+      { prefix: '琉璃', hueShift: 295, zone: '水晶海沟' }, { prefix: '星海', hueShift: 45, zone: '星辰海域' },
+      { prefix: '海神', hueShift: 325, zone: '亚特兰蒂斯' }
+    ];
+
+    function generate900OceanFish() {
+      const list = [];
+      let index = 0;
+      for (let p = 0; p < OCEAN_PREFIXES.length; p++) {
+        const pref = OCEAN_PREFIXES[p];
+        for (let b = 0; b < OCEAN_BASE_FISH.length; b++) {
+          const base = OCEAN_BASE_FISH[b];
+          index++;
+          let rarity = 'common';
+          if (index > 870) rarity = 'mythic';
+          else if (index > 800) rarity = 'legendary';
+          else if (index > 690) rarity = 'epic';
+          else if (index > 520) rarity = 'rare';
+          else if (index > 300) rarity = 'uncommon';
+
+          const rm = RARITY_META[rarity];
+          const variance = 0.85 + ((index * 37) % 35) / 100;
+          const hue = (pref.hueShift + b * 11) % 360;
+          const sat = rarity === 'mythic' ? 92 : rarity === 'legendary' ? 88 : 72;
+          const light = rarity === 'common' ? 58 : 62;
+
+          list.push({
+            id: `ocean_${String(index).padStart(3, '0')}`,
+            no: index,
+            name: `${pref.prefix}${base.name}`,
+            zone: pref.zone,
+            emoji: base.emoji,
+            shape: base.shape,
+            rarity,
+            rank: rm.rank,
+            basePrice: Math.round(rm.basePrice * variance),
+            cps: +(rm.baseCps * variance).toFixed(1),
+            exp: Math.round(rm.baseExp * variance),
+            bodyColor: `hsl(${hue}, ${sat}%, ${light}%)`,
+            finColor: `hsl(${(hue + 35) % 360}, ${sat}%, ${Math.min(85, light + 16)}%)`,
+            size: 13 + rm.rank * 2.1 + (b % 4)
+          });
+        }
+      }
+      return list;
+    }
+
+    const FISH_SPECIES = generate900OceanFish();
+    const FISH_MAP = new Map(FISH_SPECIES.map(f => [f.id, f]));
+    const FISH_BY_RARITY = {
+      common: FISH_SPECIES.filter(f => f.rarity === 'common'),
+      uncommon: FISH_SPECIES.filter(f => f.rarity === 'uncommon'),
+      rare: FISH_SPECIES.filter(f => f.rarity === 'rare'),
+      epic: FISH_SPECIES.filter(f => f.rarity === 'epic'),
+      legendary: FISH_SPECIES.filter(f => f.rarity === 'legendary'),
+      mythic: FISH_SPECIES.filter(f => f.rarity === 'mythic')
+    };
+
+    function getFishById(id) {
+      return FISH_MAP.get(id) || FISH_SPECIES[0];
+    }
+
+    // =========================================================
+    // 2. 12 Deep Upgrades + Cat Evolution + Quests
+    // =========================================================
+    const CAT_EVOLUTIONS = [
+      { minLv: 1,  title: '幼猫学徒', desc: '软萌新手小猫，手持原木钓竿' },
+      { minLv: 3,  title: '红结渔猫', desc: '解锁可爱红领结 + 元气腮红' },
+      { minLv: 5,  title: '海风船长', desc: '解锁海风草帽 + 闪亮碳素钓竿' },
+      { minLv: 8,  title: '潮流墨镜王', desc: '解锁炫酷墨镜 + 金色铃铛项圈' },
+      { minLv: 12, title: '星海皇冠猫', desc: '解锁鎏金皇冠 + 星尘光环特效' },
+      { minLv: 16, title: '海神幻彩猫', desc: '解锁双层神圣光环 + 宝石皇冠 + 彩虹星尾' }
+    ];
+
+    function getCatEvolution(lv) {
+      let cur = CAT_EVOLUTIONS[0];
+      for (const evo of CAT_EVOLUTIONS) if (lv >= evo.minLv) cur = evo;
+      return cur;
+    }
+
+    const CAT_SKINS = [
+      { id: 'orange',  name: '橘座',     cost: 0,    coat: '#f59e0b', ear: '#fbbf24', stripe: '#b45309', belly: '#fef3c7', desc: '自带干饭光环的经典橘猫' },
+      { id: 'tuxedo',  name: '奶牛猫',   cost: 120,  coat: '#1e293b', ear: '#334155', stripe: '#0f172a', belly: '#f8fafc', desc: '精力旺盛，最爱追海底气泡' },
+      { id: 'calico',  name: '三花猫',   cost: 280,  coat: '#f8fafc', ear: '#fb923c', stripe: '#334155', belly: '#ffffff', desc: '三花招财，海钓幸运满满' },
+      { id: 'siamese', name: '暹罗猫',   cost: 550,  coat: '#e7e5e4', ear: '#44403c', stripe: '#57534e', belly: '#f5f5f4', desc: '优雅高冷的深海垂钓大师' },
+      { id: 'ragdoll', name: '仙女布偶', cost: 1200, coat: '#f1f5f9', ear: '#94a3b8', stripe: '#64748b', belly: '#ffffff', desc: '蓝眼蓬松仙女猫，颜值超高' },
+      { id: 'galaxy',  name: '星空幻猫', cost: 3500, coat: '#6366f1', ear: '#a855f7', stripe: '#312e81', belly: '#e0e7ff', desc: '自带深海星辉的传说幻彩猫' }
+    ];
+
+    const UPGRADE_DEFS = [
+      // 海钓装备 (全部无限升级)
+      { id: 'rod',        cat: '海钓装备', name: '碳素海钓竿', icon: '🎣', desc: '无限升级！持续提升稀有/史诗/神话海鱼率', baseCost: 40,   growth: 1.55 },
+      { id: 'bait',       cat: '海钓装备', name: '黄金诱鱼饵', icon: '🪱', desc: '缩短等待咬钩时间，并提升海鱼重量与卖价', baseCost: 55,   growth: 1.58 },
+      { id: 'multiHook',  cat: '海钓装备', name: '多重串钩组', icon: '🪝', desc: '提升连钓暴击倍率，可触发多倍渔获金币',   baseCost: 140,  growth: 1.65 },
+      { id: 'autoFish',   cat: '海钓装备', name: '自动海钓机', icon: '⚙️', desc: '小猫自动挂机海钓，越升越快、收益越高',   baseCost: 80,   growth: 1.62 },
+      { id: 'sonar',      cat: '海钓装备', name: '深海鱼群声呐', icon: '📡', desc: '探测深渊鱼群，无限提升传说/神话权重',   baseCost: 260,  growth: 1.72 },
+      // 海底鱼缸
+      { id: 'tankCap',    cat: '海底鱼缸', name: '海洋馆扩容', icon: '🫧', desc: '每次升级永久增加 +2 条海底鱼缸容量',     baseCost: 60,   growth: 1.65 },
+      { id: 'fishFood',   cat: '海底鱼缸', name: '深海营养粮', icon: '✨', desc: '鱼缸内所有海鱼成长速度 & 产币 +25%',     baseCost: 100,  growth: 1.68 },
+      { id: 'pearlFarm',  cat: '海底鱼缸', name: '海底贝壳矿', icon: '🐚', desc: '每秒稳定产出额外金币，无限叠加产速',     baseCost: 180,  growth: 1.65 },
+      { id: 'autoSell',   cat: '海底鱼缸', name: '智能鱼市管家', icon: '🤖', desc: '自动卖出满级成鱼，每级额外提升卖价 +12%', baseCost: 450, growth: 1.78 },
+      // 特殊奇遇
+      { id: 'treasureNet',cat: '特殊奇遇', name: '沉船寻宝网', icon: '🎁', desc: '提升钓鱼捞出神秘沉船宝箱概率与金币量',   baseCost: 220,  growth: 1.72 },
+      { id: 'feverCore',  cat: '特殊奇遇', name: '潮汐狂热仪', icon: '🔥', desc: '加快黄金鱼潮充能并持续延长爆发时间',     baseCost: 320,  growth: 1.75 },
+      { id: 'shrine',     cat: '特殊奇遇', name: '海神祝福祭坛', icon: '🔱', desc: '全局所有海鱼卖价与鱼缸产币 +35%（无上限）', baseCost: 1200, growth: 1.90 }
+    ];
+
+    const CAT_UPGRADE_DEFS = [
+      { id: 'glamour',  name: '颜值星光装扮', icon: '👑', desc: '无限升级！提升猫咪特效华丽度，全产币 +18%', baseCost: 60, growth: 1.60 },
+      { id: 'gourmet',  name: '高级海鲜猫粮', icon: '🍤', desc: '喂鱼和吃罐头给猫咪增加的经验 +30%（无上限）', baseCost: 50, growth: 1.58 },
+      { id: 'luckyPaw', name: '招财幸运猫爪', icon: '🍀', desc: '无限提升神话鱼率 & 触发多倍钓获暴击',       baseCost: 90, growth: 1.65 },
+      { id: 'petSkill', name: '治愈呼噜技巧', icon: '💖', desc: '每次撸猫额外掉金币，并获得更多猫咪经验',     baseCost: 45, growth: 1.55 }
+    ];
+
+    const CAT_CANS = [
+      { id: 'dried',   name: '小鱼干零食',   icon: '🐟', baseCost: 20,  exp: 24,  mood: 12, hunger: 35, desc: '日常投喂，轻松涨经验' },
+      { id: 'seafood', name: '豪华海鲜罐头', icon: '🥫', baseCost: 85,  exp: 115, mood: 25, hunger: 70, desc: '精选深海鱼肉，经验暴涨' },
+      { id: 'royal',   name: '皇家神话大餐', icon: '👑', baseCost: 320, exp: 480, mood: 50, hunger: 100, desc: '极品海鲜盛宴，飞速进化颜值！' }
+    ];
+
+    const QUEST_TEMPLATES = [
+      { id: 'q_fish',  title: '海钓达人',   stat: 'totalCaught',  baseGoal: 5,  mult: 2.2, rewardCoins: 120, rewardPearls: 0, desc: '累计钓起海鱼' },
+      { id: 'q_pet',   title: '专业铲屎官', stat: 'totalPets',    baseGoal: 8,  mult: 2.2, rewardCoins: 90,  rewardPearls: 0, desc: '累计撸猫互动' },
+      { id: 'q_dex',   title: '海洋博物家', stat: 'dexCount',     baseGoal: 6,  mult: 2.0, rewardCoins: 240, rewardPearls: 1, desc: '解锁不同海鱼图鉴' },
+      { id: 'q_chest', title: '沉船寻宝王', stat: 'chestsOpened', baseGoal: 2,  mult: 2.0, rewardCoins: 300, rewardPearls: 1, desc: '开启沉船宝箱' }
+    ];
+
+    // =========================================================
+    // 3. Web Audio Synthesizer
+    // =========================================================
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    }
+
+    function playSound(type) {
+      if (state.muted) return;
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'cast') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(520, now); osc.frequency.exponentialRampToValueAtTime(180, now + 0.16);
+        gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.start(now); osc.stop(now + 0.18);
+      } else if (type === 'bite') {
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(740, now); osc.frequency.setValueAtTime(980, now + 0.08);
+        gain.gain.setValueAtTime(0.16, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.start(now); osc.stop(now + 0.24);
+      } else if (type === 'catch') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.07); osc.frequency.setValueAtTime(784, now + 0.14);
+        gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+      } else if (type === 'coin') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(988, now); osc.frequency.setValueAtTime(1319, now + 0.06);
+        gain.gain.setValueAtTime(0.11, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now); osc.stop(now + 0.2);
+      } else if (type === 'meow') {
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(620, now); osc.frequency.exponentialRampToValueAtTime(860, now + 0.09); osc.frequency.exponentialRampToValueAtTime(500, now + 0.24);
+        gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+        osc.start(now); osc.stop(now + 0.26);
+      }
+    }
+
+    // =========================================================
+    // 4. Game State & Save Compatibility
+    // =========================================================
+    const SAVE_KEY = 'desktop_cat_fishing_online_v2';
+
+    function createDefaultState() {
+      return {
+        nickname: '摸鱼达人',
+        roomId: 'public',
+        coins: 80,
+        pearls: 0,
+        prestigeCount: 0,
+        chests: 1,
+        homemadeCans: 0, // 自制鲜鱼罐头数量
+        marketHoldings: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 },
+        feverEnergy: 40,
+        zoneId: 'coral',
+        unlockedZones: ['coral'],
+        stats: { totalCaught: 0, totalPets: 0, chestsOpened: 0 },
+        questTiers: { q_fish: 0, q_pet: 0, q_dex: 0, q_chest: 0 },
+        cat: { level: 1, xp: 0, mood: 85, hunger: 80, skin: 'orange', unlockedSkins: ['orange'] },
+        upgrades: {
+          rod: 0, bait: 0, multiHook: 0, autoFish: 0, sonar: 0,
+          tankCap: 0, fishFood: 0, pearlFarm: 0, autoSell: 0,
+          treasureNet: 0, feverCore: 0, shrine: 0
+        },
+        catUpgrades: { glamour: 0, gourmet: 0, luckyPaw: 0, petSkill: 0 },
+        tankFish: [
+          { uid: 'starter_1', speciesId: 'ocean_006', growth: 45, x: 0.35, y: 0.68, vx: 0.05, vy: 0.01, phase: 0.4 }
+        ],
+        dex: { ocean_006: { count: 1, bestWeight: 1.2 } },
+        pendingCatch: null,
+        activeTab: 'play',
+        dexFilter: 'all',
+        dexSearch: '',
+        dexPage: 1,
+        widgetMode: false,
+        muted: false,
+        lastSavedAt: Date.now()
+      };
+    }
+
+    let state = createDefaultState();
+
+    // Runtime states
+    const runtime = {
+      feverLeft: 0,
+      pomoActive: false,
+      pomoTotalSec: 300,
+      pomoLeftSec: 300
+    };
+
+    // Global Real-time Fish Market (6 Rarity Indices)
+    const MARKET_BASE_UNIT = { common: 50, uncommon: 120, rare: 300, epic: 750, legendary: 2000, mythic: 5500 };
+    const MARKET_EVENTS = [
+      { text: '📈 国际海鲜美食节开幕！传说/神话海鱼需求大涨', bias: { legendary: 0.16, mythic: 0.18 } },
+      { text: '🌊 暖流来袭鱼群大丰收，普通/优良鱼价小幅回调', bias: { common: -0.10, uncommon: -0.08, rare: 0.08 } },
+      { text: '👑 神秘富豪高价收购史诗与传说海鱼！', bias: { epic: 0.15, legendary: 0.14 } },
+      { text: '⚡ 深海航线波动，全线海鱼行情剧烈震荡', bias: { common: 0.06, rare: -0.09, mythic: 0.14 } },
+      { text: '🍣 顶级寿司店紧急补货，稀有/史诗海鱼拉升！', bias: { rare: 0.14, epic: 0.12 } }
+    ];
+    const fishMarket = {
+      tickAccum: 0,
+      news: '📊 全服鱼市开盘！逢高卖鱼或抄底海鱼指数赚差价',
+      indices: {
+        common:    { mult: 1.00, prev: 1.00, history: [0.96, 1.02, 0.99, 1.00] },
+        uncommon:  { mult: 1.05, prev: 1.00, history: [0.98, 1.01, 1.00, 1.05] },
+        rare:      { mult: 1.12, prev: 1.06, history: [1.00, 1.04, 1.06, 1.12] },
+        epic:      { mult: 0.94, prev: 0.98, history: [1.05, 1.01, 0.98, 0.94] },
+        legendary: { mult: 1.18, prev: 1.10, history: [1.02, 1.07, 1.10, 1.18] },
+        mythic:    { mult: 1.25, prev: 1.15, history: [1.04, 1.11, 1.15, 1.25] }
+      }
+    };
+
+    function getMarketMult(rarity) {
+      return (fishMarket.indices[rarity] && fishMarket.indices[rarity].mult) || 1.0;
+    }
+
+    function getMarketSharePrice(rarity) {
+      return Math.max(10, Math.round((MARKET_BASE_UNIT[rarity] || 100) * getMarketMult(rarity)));
+    }
+
+    function stepLocalFishMarket() {
+      let evBias = {};
+      if (Math.random() < 0.28) {
+        const ev = MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
+        fishMarket.news = ev.text;
+        evBias = ev.bias || {};
+      }
+      for (const r of RARITY_ORDER) {
+        const idx = fishMarket.indices[r];
+        idx.prev = idx.mult;
+        const meanPull = (1.05 - idx.mult) * 0.12;
+        const noise = (Math.random() - 0.49) * 0.18;
+        const next = Math.max(0.55, Math.min(2.40, +(idx.mult + meanPull + noise + (evBias[r] || 0)).toFixed(2)));
+        idx.mult = next;
+        idx.history.push(next);
+        if (idx.history.length > 18) idx.history.shift();
+      }
+      updateMarketHeaderBadge();
+      if (state.activeTab === 'play') renderTabContent();
+      if (state.pendingCatch) renderCatchCard();
+    }
+
+    function nudgeMarket(rarity, delta) {
+      const idx = fishMarket.indices[rarity];
+      if (!idx) return;
+      idx.prev = idx.mult;
+      idx.mult = Math.max(0.55, Math.min(2.40, +(idx.mult + delta).toFixed(2)));
+      idx.history.push(idx.mult);
+      if (idx.history.length > 18) idx.history.shift();
+    }
+
+    function buyMarketShare(rarity) {
+      initAudio();
+      const price = getMarketSharePrice(rarity);
+      if (state.coins < price) { showToast(`买入 1 份${RARITY_META[rarity].label}指数需要 🪙 ${price.toLocaleString()}`, 'warn'); return; }
+      state.coins -= price;
+      state.marketHoldings[rarity] = (state.marketHoldings[rarity] || 0) + 1;
+      wsSend({ type: 'market_trade', rarity, side: 'buy' });
+      playSound('coin');
+      showToast(`📈 买入 1 份【${RARITY_META[rarity].label}鱼指数】(-🪙${price.toLocaleString()})`, 'good');
+      updateMarketHeaderBadge();
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function sellMarketShare(rarity) {
+      initAudio();
+      const qty = state.marketHoldings[rarity] || 0;
+      if (qty <= 0) { showToast(`你还没有持有${RARITY_META[rarity].label}鱼指数份额`, 'info'); return; }
+      const price = getMarketSharePrice(rarity);
+      state.marketHoldings[rarity] = qty - 1;
+      state.coins += price;
+      wsSend({ type: 'market_trade', rarity, side: 'sell' });
+      playSound('coin');
+      showToast(`💰 卖出 1 份【${RARITY_META[rarity].label}鱼指数】(+🪙${price.toLocaleString()})`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function updateMarketHeaderBadge() {
+      const btn = document.getElementById('marketHeaderBtn');
+      if (!btn) return;
+      // Show highest booming rarity in header
+      let bestR = 'mythic';
+      let bestM = 0;
+      for (const r of RARITY_ORDER) {
+        const m = getMarketMult(r);
+        if (m > bestM) { bestM = m; bestR = r; }
+      }
+      const rm = RARITY_META[bestR];
+      btn.textContent = `📈 ${rm.label} ${bestM.toFixed(2)}x`;
+    }
+
+    function renderSparklineSvg(history, color) {
+      if (!history || history.length < 2) return '';
+      const w = 66, h = 22;
+      const min = Math.min(...history, 0.55);
+      const max = Math.max(...history, 1.5);
+      const span = Math.max(0.05, max - min);
+      const pts = history.map((v, i) => {
+        const x = (i / (history.length - 1)) * w;
+        const y = h - ((v - min) / span) * (h - 4) - 2;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" class="shrink-0 overflow-visible"><polyline fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/></svg>`;
+    }
+
+    // Real WebSocket Multiplayer Client (with Global Fish Market Sync)
+    const online = {
+      mode: 'live', ws: null, connected: false, clientId: null, friends: [], sharedFish: [],
+      messages: [{ sender: '系统', text: '正在连接全服联机鱼塘与鱼市行情...', time: '刚刚', system: true }]
+    };
+    function wsSend(obj) { if (online.ws && online.ws.readyState === 1) { try { online.ws.send(JSON.stringify(obj)); } catch (e) {} } }
+    function syncMyStateToServer() {
+      wsSend({ type: 'state', nickname: state.nickname, skin: state.cat.skin, level: state.cat.level, glamour: state.catUpgrades.glamour || 0, coins: Math.floor(state.coins), fishingPhase: fishing.phase === 'waiting' ? 'waiting' : 'idle', bobberX: fishing.bobberX });
+    }
+    function connectWebSocket() {
+      const proto = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      if (online.ws) { try { online.ws.close(); } catch (e) {} }
+      const ws = new WebSocket(proto + window.location.host);
+      online.ws = ws;
+      ws.onopen = () => {
+        online.connected = true;
+        document.getElementById('connDot').className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block';
+        wsSend({ type: 'join', roomId: state.roomId, nickname: state.nickname, skin: state.cat.skin, level: state.cat.level, coins: Math.floor(state.coins), fishingPhase: fishing.phase === 'waiting' ? 'waiting' : 'idle' });
+      };
+      ws.onmessage = (ev) => {
+        let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
+        if (msg.type === 'welcome') { online.clientId = msg.clientId; state.roomId = msg.roomId || state.roomId; renderHeader(); }
+        else if (msg.type === 'market_sync' && msg.indices) {
+          fishMarket.news = msg.news || fishMarket.news;
+          fishMarket.indices = msg.indices;
+          updateMarketHeaderBadge();
+          if (state.activeTab === 'play') renderTabContent();
+          if (state.pendingCatch) renderCatchCard();
+        }
+        else if (msg.type === 'room_sync') {
+          online.friends = (msg.players || []).filter(p => p.id !== online.clientId).map(p => {
+            const prev = online.friends.find(x => x.id === p.id);
+            return Object.assign({ happyTimer: prev ? prev.happyTimer : 0, bobberX: p.bobberX || 0.72 }, p);
+          });
+          online.sharedFish = (msg.sharedFish || []).filter(sf => sf.ownerId !== online.clientId);
+          if (Array.isArray(msg.messages)) online.messages = msg.messages;
+          renderHeader(); if (state.activeTab === 'online') renderTabContent();
+        } else if (msg.type === 'chat_broadcast') {
+          if (msg.item) online.messages.push(msg.item);
+          if (online.messages.length > 30) online.messages.shift();
+          if (state.activeTab === 'online') renderTabContent();
+        } else if (msg.type === 'pet_event') {
+          if (msg.item) online.messages.push(msg.item);
+          if (msg.targetId === online.clientId) {
+            catAnim.happyTimer = 2.0; state.cat.mood = Math.min(100, state.cat.mood + 5); playSound('meow');
+            spawnParticles(0.14, 0.22, `❤️ ${msg.fromName}摸了你!`, '#f472b6');
+            showToast(`${msg.fromName} 摸了摸你的小猫！心情 +5`, 'gold');
+          }
+          renderHeader(); if (state.activeTab === 'online') renderTabContent();
+        }
+      };
+      ws.onclose = () => {
+        online.connected = false;
+        const dot = document.getElementById('connDot');
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400 inline-block';
+        setTimeout(connectWebSocket, 3000);
+      };
+    }
+
+    const fishing = { phase: 'idle', timer: 0, biteWindow: 0, autoTimer: 0, bobberX: 0.56, bobberY: 0.48 };
+    const particles = [];
+    const bubbles = Array.from({ length: 16 }, () => ({ x: Math.random(), y: 0.48 + Math.random() * 0.5, r: 2 + Math.random() * 3.5, speed: 0.04 + Math.random() * 0.06 }));
+    const catAnim = { blinkTimer: 2.5, blinking: false, happyTimer: 0, castSwing: 0 };
+
+    function getCurrentZone() {
+      return OCEAN_ZONES.find(z => z.id === state.zoneId) || OCEAN_ZONES[0];
+    }
+
+    function getGlobalMultiplier() {
+      const zoneMult = getCurrentZone().mult;
+      const pearlMult = 1 + (state.pearls || 0) * 0.20;
+      const shrineMult = 1 + (state.upgrades.shrine || 0) * 0.35;
+      const feverMult = runtime.feverLeft > 0 ? 3.0 : 1.0;
+      return zoneMult * pearlMult * shrineMult * feverMult;
+    }
+
+    function getTankCapacity() { return 5 + (state.upgrades.tankCap || 0) * 2; }
+    function getUpgradeCost(id) {
+      const def = UPGRADE_DEFS.find(u => u.id === id);
+      return Math.floor(def.baseCost * Math.pow(def.growth, state.upgrades[id] || 0));
+    }
+    function getCatUpgradeCost(id) {
+      const def = CAT_UPGRADE_DEFS.find(u => u.id === id);
+      return Math.floor(def.baseCost * Math.pow(def.growth, state.catUpgrades[id] || 0));
+    }
+    function getCatNextXp(lv) { return Math.floor(35 * Math.pow(1.38, lv - 1)); }
+    function getCanCost() { return Math.floor(25 * Math.pow(1.25, state.cat.level - 1)); }
+    function getCoopBonusPct() { return Math.min(50, online.sharedFish.length * 5); }
+
+    function getTotalCps() {
+      const foodMult = 1 + (state.upgrades.fishFood || 0) * 0.25;
+      const glamourMult = 1 + (state.catUpgrades.glamour || 0) * 0.18;
+      const catMult = 1 + (state.cat.level - 1) * 0.12 + (state.cat.mood >= 70 ? 0.15 : 0);
+      const coopMult = 1 + getCoopBonusPct() / 100;
+      const shellBase = (state.upgrades.pearlFarm || 0) * 3.5;
+      let sum = shellBase;
+      for (const f of state.tankFish) {
+        const sp = getFishById(f.speciesId);
+        const stageMult = f.growth >= 100 ? 1.8 : (f.growth >= 50 ? 1.3 : 1.0);
+        sum += sp.cps * stageMult;
+      }
+      return sum * foodMult * glamourMult * catMult * coopMult * getGlobalMultiplier();
+    }
+
+    function getFishSellPrice(fishObj) {
+      const sp = getFishById(fishObj.speciesId);
+      const growthMult = 1 + ((fishObj.growth || 10) / 100) * 1.4;
+      const sellBonus = 1 + (state.upgrades.autoSell || 0) * 0.12 + (state.upgrades.bait || 0) * 0.05;
+      return Math.round(sp.basePrice * growthMult * sellBonus * getGlobalMultiplier() * getMarketMult(sp.rarity));
+    }
+
+    function getPrestigePearlsEarned() {
+      if (state.coins < 50000) return 0;
+      return Math.max(1, Math.floor(Math.sqrt(state.coins / 15000)));
+    }
+
+    function saveGame() {
+      state.lastSavedAt = Date.now();
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.coins !== 'number') return;
+        const def = createDefaultState();
+        state = Object.assign(def, parsed);
+        state.cat = Object.assign(def.cat, parsed.cat || {});
+        state.upgrades = Object.assign(def.upgrades, parsed.upgrades || {});
+        state.catUpgrades = Object.assign(def.catUpgrades, parsed.catUpgrades || {});
+        state.stats = Object.assign(def.stats, parsed.stats || {});
+        state.questTiers = Object.assign(def.questTiers, parsed.questTiers || {});
+        state.marketHoldings = Object.assign(def.marketHoldings, parsed.marketHoldings || {});
+        if (!Array.isArray(state.unlockedZones)) state.unlockedZones = ['coral'];
+        if (!Array.isArray(state.tankFish)) state.tankFish = [];
+        state.tankFish = state.tankFish.map(f => FISH_MAP.has(f.speciesId) ? f : Object.assign({}, f, { speciesId: 'ocean_006' }));
+        if (!state.dex || typeof state.dex !== 'object') state.dex = {};
+        if (state.pendingCatch && !FISH_MAP.has(state.pendingCatch.speciesId)) state.pendingCatch = null;
+
+        const elapsedSec = Math.min(3600 * 8, Math.floor((Date.now() - (parsed.lastSavedAt || Date.now())) / 1000));
+        const cps = getTotalCps();
+        if (elapsedSec >= 30 && cps > 0) {
+          const earned = Math.floor(cps * elapsedSec * 0.5);
+          if (earned > 0) {
+            state.coins += earned;
+            showModal('欢迎回来，摸鱼快乐！', `你离开的 ${Math.floor(elapsedSec / 60)} 分钟里，海底鱼缸为你悄悄赚了 🪙 ${earned.toLocaleString()} 金币！`, false);
+          }
+        }
+      } catch (e) {
+        state = createDefaultState();
+      }
+    }
+
+    // =========================================================
+    // 5. UI Helpers
+    // =========================================================
+    function showToast(text, tone = 'info') {
+      const layer = document.getElementById('toastLayer');
+      const el = document.createElement('div');
+      const colors = {
+        info: 'bg-slate-800/95 border-slate-600 text-slate-100',
+        good: 'bg-emerald-900/95 border-emerald-500/60 text-emerald-200',
+        gold: 'bg-amber-900/95 border-amber-400/70 text-amber-200',
+        warn: 'bg-rose-900/95 border-rose-500/60 text-rose-200'
+      };
+      el.className = `px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-lg ${colors[tone] || colors.info}`;
+      el.textContent = text;
+      layer.appendChild(el);
+      setTimeout(() => {
+        el.style.transition = 'opacity 0.35s, transform 0.35s';
+        el.style.opacity = '0'; el.style.transform = 'translateY(-8px)';
+        setTimeout(() => el.remove(), 380);
+      }, 2100);
+    }
+
+    let modalCallback = null;
+    function showModal(title, body, showCancel = false, onConfirm = null) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').textContent = body;
+      document.getElementById('modalCancelBtn').classList.toggle('hidden', !showCancel);
+      modalCallback = onConfirm;
+      document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+      modalCallback = null;
+    }
+
+    function spawnParticles(nx, ny, text, color = '#fbbf24') {
+      particles.push({ x: nx, y: ny, vy: -0.14, text, color, life: 1.0 });
+    }
+
+    function addChatMessage(sender, text, isSystem = false) {
+      const now = new Date();
+      const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      online.messages.push({ sender, text, time, system: isSystem });
+      if (online.messages.length > 30) online.messages.shift();
+      if (state.activeTab === 'online') renderTabContent();
+    }
+
+    function copyInviteLink() {
+      const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(state.roomId)}`;
+      const fallbackCopy = (str) => {
+        const ta = document.createElement('textarea');
+        ta.value = str; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        ta.remove();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).catch(() => fallbackCopy(url));
+      else fallbackCopy(url);
+      showToast(`已复制房间邀请链接！发给好友点开就能进同一个鱼塘`, 'good');
+    }
+
+    // =========================================================
+    // 6. Core Gameplay + New Loops (Zones, Fever, Chests, Pomo, Quests, Prestige)
+    // =========================================================
+    function addFeverEnergy(amount) {
+      if (runtime.feverLeft > 0) return;
+      const mult = 1 + (state.upgrades.feverCore || 0) * 0.18;
+      state.feverEnergy = Math.min(100, (state.feverEnergy || 0) + amount * mult);
+      renderFeverBar();
+    }
+
+    function activateFever() {
+      if (state.feverEnergy < 100 || runtime.feverLeft > 0) return;
+      initAudio();
+      state.feverEnergy = 0;
+      runtime.feverLeft = 20 + (state.upgrades.feverCore || 0) * 3;
+      playSound('catch');
+      spawnParticles(0.5, 0.35, '🔥 黄金鱼潮开启 x3!', '#fbbf24');
+      showToast(`🔥 黄金鱼潮爆发 ${runtime.feverLeft} 秒！收益×3、极品率暴涨！`, 'gold');
+      renderFeverBar();
+      renderHeader();
+    }
+
+    function openTreasureChest() {
+      initAudio();
+      if ((state.chests || 0) <= 0) {
+        showToast('暂无沉船宝箱，钓鱼或在「沉船宝藏礁」垂钓有概率捞出宝箱！', 'info');
+        return;
+      }
+      state.chests -= 1;
+      state.stats.chestsOpened = (state.stats.chestsOpened || 0) + 1;
+      playSound('catch');
+
+      const roll = Math.random();
+      const baseGold = Math.max(150, Math.round(getTotalCps() * 45 + 120 * getGlobalMultiplier()));
+      if (roll < 0.25) {
+        const pearlGain = 1 + (Math.random() < 0.35 ? 1 : 0);
+        state.pearls = (state.pearls || 0) + pearlGain;
+        showToast(`🎁 沉船宝箱爆出 🦪 海洋珍珠 +${pearlGain}（永久全局收益+${pearlGain * 20}%）！`, 'gold');
+        spawnParticles(0.5, 0.35, `🦪 珍珠+${pearlGain}!`, '#f472b6');
+      } else if (roll < 0.65) {
+        const rareFish = rollFish(true, 'rare');
+        recordDex(rareFish.speciesId, rareFish.weight);
+        state.pendingCatch = rareFish;
+        const sp = getFishById(rareFish.speciesId);
+        showToast(`🎁 宝箱里藏着【${RARITY_META[sp.rarity].label}】${sp.name} + 🪙${baseGold}！`, 'gold');
+        state.coins += baseGold;
+        renderCatchCard();
+      } else {
+        const jackpot = baseGold * 2;
+        state.coins += jackpot;
+        const gained = gainCatXp(55);
+        showToast(`🎁 黄金沉船宝藏！获得 🪙${jackpot.toLocaleString()} + 猫咪经验 ${gained}！`, 'gold');
+        spawnParticles(0.5, 0.35, `🎁 +🪙${jackpot}`, '#fbbf24');
+      }
+      renderHeader();
+      renderTabContent();
+      saveGame();
+    }
+
+    function rollFish(perfectBonus = false, minRarity = null) {
+      const zoneLuck = getCurrentZone().luckBonus;
+      const rodLuck = (state.upgrades.rod || 0) * 0.032;
+      const sonarLuck = (state.upgrades.sonar || 0) * 0.028;
+      const pawLuck = (state.catUpgrades.luckyPaw || 0) * 0.022;
+      const catLuck = (state.cat.level - 1) * 0.012;
+      const feverLuck = runtime.feverLeft > 0 ? 0.25 : 0;
+      const bonus = zoneLuck + rodLuck + sonarLuck + pawLuck + catLuck + feverLuck + (perfectBonus ? 0.14 : 0);
+
+      const r = Math.random();
+      let rarity = 'common';
+      if (r < Math.min(0.14, 0.006 + bonus * 0.14)) rarity = 'mythic';
+      else if (r < Math.min(0.30, 0.025 + bonus * 0.30)) rarity = 'legendary';
+      else if (r < Math.min(0.52, 0.08 + bonus * 0.58)) rarity = 'epic';
+      else if (r < Math.min(0.75, 0.22 + bonus * 0.88)) rarity = 'rare';
+      else if (r < Math.min(0.92, 0.48 + bonus)) rarity = 'uncommon';
+
+      if (minRarity && RARITY_META[rarity].rank < RARITY_META[minRarity].rank) {
+        rarity = minRarity;
+      }
+
+      const pool = FISH_BY_RARITY[rarity];
+      const sp = pool[Math.floor(Math.random() * pool.length)] || FISH_SPECIES[0];
+      const weight = +(0.6 + Math.random() * 2.8 * RARITY_META[rarity].mult).toFixed(1);
+      return { uid: 'f_' + Date.now() + '_' + Math.floor(Math.random() * 9999), speciesId: sp.id, weight, growth: 10 };
+    }
+
+    function recordDex(speciesId, weight) {
+      if (!state.dex[speciesId]) {
+        state.dex[speciesId] = { count: 1, bestWeight: weight };
+        const sp = getFishById(speciesId);
+        showToast(`📖 解锁新海鱼 #${sp.no} ${sp.name}（${RARITY_META[sp.rarity].label}）！`, 'gold');
+      } else {
+        state.dex[speciesId].count += 1;
+        if (weight > state.dex[speciesId].bestWeight) state.dex[speciesId].bestWeight = weight;
+      }
+    }
+
+    function handleFishingAction() {
+      initAudio();
+      if (fishing.phase === 'idle') {
+        fishing.phase = 'waiting';
+        const baitReduce = Math.min(0.65, (state.upgrades.bait || 0) * 0.065);
+        const feverSpeed = runtime.feverLeft > 0 ? 0.55 : 1.0;
+        fishing.timer = Math.max(0.45, (1.4 + Math.random() * 2.1) * (1 - baitReduce) * feverSpeed);
+        fishing.bobberX = 0.50 + Math.random() * 0.14;
+        fishing.bobberY = 0.49;
+        catAnim.castSwing = 1.0;
+        playSound('cast');
+        updateFishingUI();
+      } else if (fishing.phase === 'waiting') {
+        fishing.phase = 'idle';
+        showToast('海鱼还没咬钩，稍微耐心等一下哦', 'info');
+        updateFishingUI();
+      } else if (fishing.phase === 'biting') {
+        const perfect = fishing.biteWindow > 1.2;
+        const caught = rollFish(perfect);
+        fishing.phase = 'idle';
+        state.stats.totalCaught = (state.stats.totalCaught || 0) + 1;
+        recordDex(caught.speciesId, caught.weight);
+        state.pendingCatch = caught;
+        catAnim.happyTimer = 1.5;
+        addFeverEnergy(perfect ? 18 : 12);
+        playSound('catch');
+        const sp = getFishById(caught.speciesId);
+
+        // Multi-hook extra catch coins
+        const mhChance = (state.upgrades.multiHook || 0) * 0.12;
+        if (Math.random() < mhChance) {
+          const extra = Math.round(sp.basePrice * getGlobalMultiplier());
+          state.coins += extra;
+          showToast(`🪝 多重串钩连钓！额外入账 🪙 ${extra.toLocaleString()}`, 'good');
+        }
+
+        // Lucky paw crit
+        const critChance = (state.catUpgrades.luckyPaw || 0) * 0.06;
+        if (Math.random() < critChance) {
+          const bonusCoin = Math.round(sp.basePrice * getGlobalMultiplier());
+          state.coins += bonusCoin;
+          showToast(`🍀 招财猫爪暴击！额外获得 🪙 ${bonusCoin.toLocaleString()}`, 'gold');
+        }
+
+        // Treasure chest drop roll
+        const zoneChestMult = state.zoneId === 'wreck' ? 2.0 : 1.0;
+        const chestChance = (0.06 + (state.upgrades.treasureNet || 0) * 0.025) * zoneChestMult;
+        if (Math.random() < chestChance) {
+          state.chests = (state.chests || 0) + 1;
+          showToast('🎁 捞到一个神秘沉船宝箱！快点下方宝箱按钮开启', 'gold');
+        }
+
+        spawnParticles(fishing.bobberX, 0.44, `${sp.emoji} ${sp.name}!`, RARITY_META[sp.rarity].color);
+        if (sp.rarity === 'legendary' || sp.rarity === 'mythic') {
+          addChatMessage('系统', `🎉 ${state.nickname} 在${getCurrentZone().name}钓到了【${RARITY_META[sp.rarity].label}】#${sp.no} ${sp.name}！`, true);
+        } else if (perfect) {
+          showToast(`✨ 完美拉杆！钓到 ${sp.name} (${caught.weight}kg)`, 'gold');
+        }
+        updateFishingUI();
+        renderCatchCard();
+        renderHeader();
+        renderTabContent();
+        saveGame();
+      }
+    }
+
+    function triggerAutoFish() {
+      const caught = rollFish(false);
+      state.stats.totalCaught = (state.stats.totalCaught || 0) + 1;
+      recordDex(caught.speciesId, caught.weight);
+      addFeverEnergy(5);
+      const sp = getFishById(caught.speciesId);
+      if (state.tankFish.length < getTankCapacity() && (sp.rank >= 3 || state.tankFish.length < 3)) {
+        addFishToTank(caught, true);
+        spawnParticles(0.55, 0.46, `⚙️ +${sp.emoji}入缸`, '#38bdf8');
+      } else {
+        const earn = Math.round(sp.basePrice * getGlobalMultiplier());
+        state.coins += earn;
+        spawnParticles(0.55, 0.46, `⚙️ +🪙${earn}`, '#fbbf24');
+      }
+      renderHeader();
+      if (state.activeTab === 'tank' || state.activeTab === 'dex' || state.activeTab === 'play') renderTabContent();
+    }
+
+    function addFishToTank(fishObj, silent = false) {
+      if (state.tankFish.length >= getTankCapacity()) {
+        if (!silent) showToast('海底鱼缸已满！去“升级”扩容或卖掉大鱼吧', 'warn');
+        return false;
+      }
+      state.tankFish.push({
+        uid: fishObj.uid,
+        speciesId: fishObj.speciesId,
+        growth: fishObj.growth || 10,
+        x: 0.15 + Math.random() * 0.7,
+        y: 0.56 + Math.random() * 0.34,
+        vx: (Math.random() > 0.5 ? 1 : -1) * (0.04 + Math.random() * 0.05),
+        vy: (Math.random() - 0.5) * 0.015,
+        phase: Math.random() * Math.PI * 2
+      });
+      return true;
+    }
+
+    function gainCatXp(rawAmount) {
+      const gourmetMult = 1 + (state.catUpgrades.gourmet || 0) * 0.3;
+      const amount = Math.round(rawAmount * gourmetMult);
+      const prevEvo = getCatEvolution(state.cat.level).title;
+      state.cat.xp += amount;
+      let needed = getCatNextXp(state.cat.level);
+      let leveled = false;
+      while (state.cat.xp >= needed) {
+        state.cat.xp -= needed;
+        state.cat.level += 1;
+        needed = getCatNextXp(state.cat.level);
+        leveled = true;
+      }
+      if (leveled) {
+        const newEvo = getCatEvolution(state.cat.level);
+        if (newEvo.title !== prevEvo) {
+          showToast(`🌟 外观进化！小猫晋升【${newEvo.title}】(${newEvo.desc})`, 'gold');
+          addChatMessage('系统', `👑 ${state.nickname} 的猫咪进化为【${newEvo.title}】(Lv.${state.cat.level})！`, true);
+        } else {
+          showToast(`🎉 小猫升到 Lv.${state.cat.level}！颜值与产币加成提升`, 'gold');
+        }
+        spawnParticles(0.14, 0.22, `✨ Lv.${state.cat.level}!`, '#fbbf24');
+      }
+      return amount;
+    }
+
+    function petCat() {
+      initAudio();
+      state.stats.totalPets = (state.stats.totalPets || 0) + 1;
+      const petLv = state.catUpgrades.petSkill || 0;
+      const coinBonus = Math.round(petLv * 4 * getGlobalMultiplier());
+      const xpGain = 5 + petLv * 3;
+      state.cat.mood = Math.min(100, state.cat.mood + 8);
+      if (coinBonus > 0) state.coins += coinBonus;
+      gainCatXp(xpGain);
+      addFeverEnergy(4);
+      catAnim.happyTimer = 1.4;
+      playSound('meow');
+      spawnParticles(0.14 + (Math.random() - 0.5) * 0.06, 0.24, coinBonus > 0 ? `❤️ +🪙${coinBonus}` : '❤️ 呼噜~', '#fb7185');
+      renderHeader();
+      if (state.activeTab === 'cat' || state.activeTab === 'play') renderTabContent();
+    }
+
+    function getCanPrice(canId) {
+      const def = CAT_CANS.find(c => c.id === canId) || CAT_CANS[0];
+      return Math.floor(def.baseCost * Math.pow(1.18, state.cat.level - 1));
+    }
+
+    function buyCatCan(canId = 'seafood') {
+      initAudio();
+      const def = CAT_CANS.find(c => c.id === canId) || CAT_CANS[1];
+      const cost = getCanPrice(def.id);
+      if (state.coins < cost) { showToast(`购买${def.name}需要 🪙 ${cost.toLocaleString()} 金币`, 'warn'); return; }
+      state.coins -= cost;
+      state.cat.hunger = Math.min(100, state.cat.hunger + def.hunger);
+      state.cat.mood = Math.min(100, state.cat.mood + def.mood);
+      const scaledExp = Math.round(def.exp * Math.pow(1.18, state.cat.level - 1));
+      const gained = gainCatXp(scaledExp);
+      catAnim.happyTimer = 2.0;
+      playSound('meow');
+      spawnParticles(0.14, 0.24, `${def.icon} +${gained} EXP`, '#fbbf24');
+      showToast(`给小猫吃了${def.name}！获得 +${gained} 经验`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function craftCanFromPending() {
+      if (!state.pendingCatch) return;
+      const sp = getFishById(state.pendingCatch.speciesId);
+      const qty = Math.max(1, sp.rank);
+      state.homemadeCans = (state.homemadeCans || 0) + qty;
+      state.pendingCatch = null;
+      playSound('coin');
+      showToast(`🥫 用 ${sp.name} 做成了 ${qty} 个鲜鱼罐头！可在「猫咪」里随时投喂`, 'gold');
+      renderCatchCard(); renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function useHomemadeCan() {
+      initAudio();
+      if ((state.homemadeCans || 0) <= 0) { showToast('还没有自制鲜鱼罐头，钓到鱼后点「做罐头」即可制作！', 'info'); return; }
+      state.homemadeCans -= 1;
+      state.cat.hunger = Math.min(100, state.cat.hunger + 50);
+      state.cat.mood = Math.min(100, state.cat.mood + 20);
+      const gained = gainCatXp(Math.round(45 * Math.pow(1.18, state.cat.level - 1)));
+      catAnim.happyTimer = 2.0;
+      playSound('meow');
+      spawnParticles(0.14, 0.24, `🥫 +${gained} EXP`, '#f472b6');
+      showToast(`喂了 1 个自制鲜鱼罐头！获得 +${gained} 经验`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function feedTankFish(uid) {
+      const idx = state.tankFish.findIndex(f => f.uid === uid);
+      if (idx === -1) return;
+      const f = state.tankFish[idx];
+      const sp = getFishById(f.speciesId);
+      const growthBonus = 1 + (f.growth || 10) / 100;
+      state.tankFish.splice(idx, 1);
+      state.cat.hunger = Math.min(100, state.cat.hunger + 30);
+      state.cat.mood = Math.min(100, state.cat.mood + 15);
+      const gained = gainCatXp(Math.round(sp.exp * growthBonus));
+      catAnim.happyTimer = 1.8;
+      playSound('meow');
+      spawnParticles(0.14, 0.24, `🍖 +${gained} EXP`, '#fbbf24');
+      showToast(`把养大的 ${sp.name} 喂给了小猫，获得 +${gained} 经验！`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function buyCatUpgrade(id) {
+      const def = CAT_UPGRADE_DEFS.find(u => u.id === id);
+      const lv = state.catUpgrades[id] || 0;
+      const cost = getCatUpgradeCost(id);
+      if (state.coins < cost) { showToast(`需要 🪙 ${cost} 金币才能升级 ${def.name}`, 'warn'); return; }
+      state.coins -= cost;
+      state.catUpgrades[id] = lv + 1;
+      catAnim.happyTimer = 1.8;
+      playSound('catch');
+      spawnParticles(0.14, 0.22, `${def.icon} Lv.${lv + 1}!`, '#f472b6');
+      showToast(`✨ ${def.name} 升至 Lv.${lv + 1}！猫咪更强更好看了`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function unlockOrSwitchZone(zoneId) {
+      const z = OCEAN_ZONES.find(x => x.id === zoneId);
+      if (!z) return;
+      if (state.unlockedZones.includes(zoneId)) {
+        state.zoneId = zoneId;
+        playSound('cast');
+        showToast(`⛵ 已启航前往【${z.name}】（产币 ×${z.mult}）`, 'good');
+      } else {
+        if (state.coins < z.cost) {
+          showToast(`解锁【${z.name}】需要 🪙 ${z.cost.toLocaleString()} 金币`, 'warn');
+          return;
+        }
+        state.coins -= z.cost;
+        state.unlockedZones.push(zoneId);
+        state.zoneId = zoneId;
+        playSound('catch');
+        showToast(`🎉 解锁新海域【${z.name}】！全收益 ×${z.mult}`, 'gold');
+      }
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function claimQuest(questId) {
+      const q = QUEST_TEMPLATES.find(x => x.id === questId);
+      if (!q) return;
+      const tier = state.questTiers[questId] || 0;
+      const goal = Math.round(q.baseGoal * Math.pow(q.mult, tier));
+      const curVal = q.stat === 'dexCount' ? Object.keys(state.dex).length : (state.stats[q.stat] || 0);
+      if (curVal < goal) return;
+
+      const coinReward = Math.round(q.rewardCoins * Math.pow(1.9, tier));
+      const pearlReward = q.rewardPearls > 0 ? q.rewardPearls + Math.floor(tier / 2) : (tier >= 2 ? 1 : 0);
+      state.coins += coinReward;
+      state.pearls = (state.pearls || 0) + pearlReward;
+      state.questTiers[questId] = tier + 1;
+      playSound('coin');
+      showToast(`✅ 完成悬赏「${q.title}」！获得 🪙${coinReward.toLocaleString()}${pearlReward ? ` + 🦪${pearlReward}` : ''}`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function togglePomodoro(minutes) {
+      if (runtime.pomoActive) {
+        runtime.pomoActive = false;
+        showToast('已暂停专注番茄钟', 'info');
+      } else {
+        runtime.pomoTotalSec = minutes * 60;
+        runtime.pomoLeftSec = minutes * 60;
+        runtime.pomoActive = true;
+        showToast(`⏱️ 开启 ${minutes} 分钟专注摸鱼！倒计时结束必出史诗/神话海鱼`, 'good');
+      }
+      renderHeader(); renderTabContent();
+    }
+
+    function doPrestige() {
+      const earnPearls = getPrestigePearlsEarned();
+      if (earnPearls <= 0) {
+        showToast('金币达到 🪙 50,000 后即可远航转生换取永久珍珠！', 'warn');
+        return;
+      }
+      showModal(
+        '⛵ 远航转生确认',
+        `本次远航将重置当前金币、普通升级与鱼缸，但永久保留【900种图鉴、猫咪皮肤、猫咪等级】并立刻获得 🦪 ${earnPearls} 颗海洋珍珠（永久全局收益 +${earnPearls * 20}%）！确定出发吗？`,
+        true,
+        () => {
+          state.pearls = (state.pearls || 0) + earnPearls;
+          state.prestigeCount = (state.prestigeCount || 0) + 1;
+          state.coins = 100;
+          state.chests = (state.chests || 0) + 2;
+          state.zoneId = 'coral';
+          state.unlockedZones = ['coral'];
+          state.upgrades = createDefaultState().upgrades;
+          state.tankFish = [{ uid: 'p_' + Date.now(), speciesId: 'ocean_006', growth: 45, x: 0.35, y: 0.68, vx: 0.05, vy: 0.01, phase: 0.4 }];
+          state.pendingCatch = null;
+          playSound('catch');
+          showToast(`⛵ 远航成功！获得 🦪 ${earnPearls} 珍珠 + 2个沉船宝箱`, 'gold');
+          renderHeader(); renderCatchCard(); renderTabContent(); saveGame();
+        }
+      );
+    }
+
+    function petFriendCat(friendId) {
+      initAudio();
+      const f = online.friends.find(x => x.id === friendId);
+      if (!f) return;
+      f.happyTimer = 2.0;
+      state.coins += 5;
+      playSound('meow');
+      const idx = online.friends.indexOf(f);
+      spawnParticles(0.28 + idx * 0.13, 0.24, '❤️ 被摸了!', '#f472b6');
+      showToast(`摸了 ${f.nickname} 的猫，获得友情奖励 +🪙5！`, 'good');
+      wsSend({ type: 'pet_friend', targetId: friendId });
+      renderHeader();
+    }
+
+    function sendChat(text) {
+      const clean = (text || '').trim().slice(0, 40);
+      if (!clean) return;
+      wsSend({ type: 'chat', text: clean });
+      spawnParticles(0.14, 0.18, clean.slice(0, 10), '#e2e8f0');
+    }
+
+    function joinRoom(newNick, newRoom) {
+      const nick = (newNick || '').trim().slice(0, 12) || '摸鱼达人';
+      const room = (newRoom || '').trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16) || 'public';
+      state.nickname = nick; state.roomId = room; saveGame();
+      wsSend({ type: 'join', roomId: room, nickname: nick, skin: state.cat.skin, level: state.cat.level, coins: Math.floor(state.coins), fishingPhase: fishing.phase === 'waiting' ? 'waiting' : 'idle' });
+      showToast(`已切换到房间：${room}`, 'good');
+      renderHeader(); renderTabContent();
+    }
+
+    function keepPendingFish() {
+      if (!state.pendingCatch) return;
+      if (addFishToTank(state.pendingCatch)) {
+        const sp = getFishById(state.pendingCatch.speciesId);
+        wsSend({ type: 'add_fish', speciesId: sp.id });
+        showToast(`已将 ${sp.name} 放入共享海底鱼塘！`, 'good');
+        state.pendingCatch = null; playSound('cast');
+        renderCatchCard(); renderHeader(); renderTabContent(); saveGame();
+      }
+    }
+
+    function feedPendingFish() {
+      if (!state.pendingCatch) return;
+      const sp = getFishById(state.pendingCatch.speciesId);
+      state.cat.hunger = Math.min(100, state.cat.hunger + 22);
+      state.cat.mood = Math.min(100, state.cat.mood + 12);
+      const gained = gainCatXp(sp.exp);
+      catAnim.happyTimer = 1.8; playSound('meow');
+      spawnParticles(0.14, 0.25, `🍖 +${gained} EXP`, '#fbbf24');
+      showToast(`小猫吃掉了 ${sp.name}，获得 +${gained} 经验！`, 'gold');
+      state.pendingCatch = null;
+      renderCatchCard(); renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function sellPendingFish() {
+      if (!state.pendingCatch) return;
+      const sp = getFishById(state.pendingCatch.speciesId);
+      const price = Math.round(sp.basePrice * getGlobalMultiplier() * getMarketMult(sp.rarity));
+      state.coins += price; playSound('coin');
+      spawnParticles(0.5, 0.4, `+🪙${price}`, '#34d399');
+      showToast(`卖出 ${sp.name}，获得 🪙 ${price.toLocaleString()}`, 'good');
+      state.pendingCatch = null;
+      renderCatchCard(); renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function sellTankFish(uid) {
+      const idx = state.tankFish.findIndex(f => f.uid === uid);
+      if (idx === -1) return;
+      const f = state.tankFish[idx];
+      const sp = getFishById(f.speciesId);
+      const price = getFishSellPrice(f);
+      state.tankFish.splice(idx, 1);
+      state.coins += price; playSound('coin');
+      spawnParticles(f.x, f.y, `+🪙${price}`, '#34d399');
+      showToast(`卖出 ${sp.name}，入账 🪙 ${price.toLocaleString()}`, 'good');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function buyUpgrade(id) {
+      const def = UPGRADE_DEFS.find(u => u.id === id);
+      const lv = state.upgrades[id] || 0;
+      const cost = getUpgradeCost(id);
+      if (state.coins < cost) { showToast('金币还不够，再多钓几条海鱼吧！', 'warn'); return; }
+      state.coins -= cost;
+      state.upgrades[id] = lv + 1;
+      playSound('coin');
+      showToast(`✨ ${def.name} 升至 Lv.${lv + 1}！`, 'gold');
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    function selectOrBuySkin(skinId) {
+      const skin = CAT_SKINS.find(s => s.id === skinId);
+      if (!skin) return;
+      if (state.cat.unlockedSkins.includes(skinId)) {
+        state.cat.skin = skinId; playSound('meow'); showToast(`已切换为 ${skin.name}`, 'info');
+      } else {
+        if (state.coins < skin.cost) { showToast(`需要 🪙 ${skin.cost} 金币才能解锁 ${skin.name}`, 'warn'); return; }
+        state.coins -= skin.cost; state.cat.unlockedSkins.push(skinId); state.cat.skin = skinId;
+        playSound('catch'); showToast(`🎉 解锁新猫咪：${skin.name}！`, 'gold');
+      }
+      renderHeader(); renderTabContent(); saveGame();
+    }
+
+    // =========================================================
+    // 7. DOM Rendering
+    // =========================================================
+    function formatSec(sec) {
+      const s = Math.max(0, Math.ceil(sec));
+      return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function renderFeverBar() {
+      const pct = runtime.feverLeft > 0 ? 100 : Math.min(100, Math.round(state.feverEnergy || 0));
+      document.getElementById('feverBar').style.width = `${pct}%`;
+      const btn = document.getElementById('feverBtn');
+      const banner = document.getElementById('feverBanner');
+      if (runtime.feverLeft > 0) {
+        banner.classList.remove('hidden');
+        document.getElementById('feverRemainTxt').textContent = Math.ceil(runtime.feverLeft);
+        btn.disabled = true;
+        btn.className = 'shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-rose-500/30 text-rose-200 border border-rose-400/50';
+        btn.textContent = `爆发中 ${Math.ceil(runtime.feverLeft)}s`;
+      } else if (pct >= 100) {
+        banner.classList.add('hidden');
+        btn.disabled = false;
+        btn.className = 'shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 animate-pulse shadow cursor-pointer';
+        btn.textContent = '🔥 开启鱼潮!';
+      } else {
+        banner.classList.add('hidden');
+        btn.disabled = true;
+        btn.className = 'shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700';
+        btn.textContent = `充能 ${pct}%`;
+      }
+    }
+
+    function renderHeader() {
+      const cps = getTotalCps();
+      const zone = getCurrentZone();
+      document.getElementById('coinDisplay').textContent = Math.floor(state.coins).toLocaleString();
+      document.getElementById('cpsDisplay').textContent = `(+${cps.toFixed(1)}/s)`;
+      document.getElementById('pearlDisplay').textContent = state.pearls || 0;
+      document.getElementById('tankCountDisplay').textContent = `${state.tankFish.length}/${getTankCapacity()}`;
+      document.getElementById('roomBadgeText').textContent = `房间: ${state.roomId} · ${online.friends.length + 1}人`;
+      document.getElementById('zoneHeaderBadge').textContent = `${zone.icon} ${zone.name}`;
+      document.getElementById('coopBonusPill').textContent = `🤝 联机 +${getCoopBonusPct()}%`;
+      document.getElementById('chestCountTxt').textContent = `宝箱(${state.chests || 0})`;
+
+      const skin = CAT_SKINS.find(s => s.id === state.cat.skin) || CAT_SKINS[0];
+      const evo = getCatEvolution(state.cat.level);
+      document.getElementById('catNameBadge').textContent = `Lv.${state.cat.level} ${skin.name}`;
+      document.getElementById('catTierBadge').textContent = `✨ ${evo.title}`;
+      document.getElementById('moodBar').style.width = `${Math.round(state.cat.mood)}%`;
+      document.getElementById('hungerBar').style.width = `${Math.round(state.cat.hunger)}%`;
+      document.getElementById('autoBadge').classList.toggle('hidden', (state.upgrades.autoFish || 0) <= 0);
+
+      const pomoBadge = document.getElementById('pomoOverlayBadge');
+      pomoBadge.classList.toggle('hidden', !runtime.pomoActive);
+      if (runtime.pomoActive) document.getElementById('pomoTimeMini').textContent = formatSec(runtime.pomoLeftSec);
+      renderFeverBar();
+    }
+
+    function updateFishingUI() {
+      const btn = document.getElementById('fishBtn');
+      const txt = document.getElementById('fishBtnText');
+      const alertEl = document.getElementById('biteAlert');
+
+      if (fishing.phase === 'idle') {
+        btn.className = 'col-span-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-bold text-sm shadow-lg shadow-sky-500/20 transition active:scale-[0.98] flex items-center justify-center gap-1.5';
+        txt.textContent = '抛竿海钓 (空格)';
+        alertEl.classList.add('hidden');
+      } else if (fishing.phase === 'waiting') {
+        btn.className = 'col-span-2 py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-sm transition flex items-center justify-center gap-1.5';
+        txt.textContent = '等待海鱼咬钩...';
+        alertEl.classList.add('hidden');
+      } else if (fishing.phase === 'biting') {
+        btn.className = 'col-span-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-white font-extrabold text-sm shadow-lg shadow-rose-500/35 animate-pulse flex items-center justify-center gap-1.5';
+        txt.textContent = '❗ 立即收竿！(空格)';
+        alertEl.classList.remove('hidden');
+      }
+    }
+
+    function renderCatchCard() {
+      const iconEl = document.getElementById('catchIcon');
+      const titleEl = document.getElementById('catchTitle');
+      const descEl = document.getElementById('catchDesc');
+      const actionsEl = document.getElementById('catchActions');
+
+      if (!state.pendingCatch) {
+        iconEl.textContent = '🎣';
+        titleEl.textContent = '900种海洋鱼 · 6大海域等你探索';
+        descEl.textContent = '攒满鱼潮能量可开启 3 倍爆率，捞到沉船宝箱可开出稀有大鱼与珍珠！';
+        actionsEl.classList.add('hidden');
+        return;
+      }
+      const sp = getFishById(state.pendingCatch.speciesId);
+      const rm = RARITY_META[sp.rarity];
+      const sellVal = Math.round(sp.basePrice * getGlobalMultiplier() * getMarketMult(sp.rarity));
+      iconEl.textContent = sp.emoji;
+      titleEl.innerHTML = `<span class="text-[10px] px-1.5 py-0.5 rounded mr-1 ${rm.badge}">${rm.tag}·${rm.label}</span><span style="color:${rm.color}">#${sp.no} ${sp.name}</span> <span class="text-xs font-normal text-slate-400">${state.pendingCatch.weight}kg</span>`;
+      descEl.textContent = `${sp.zone} · 卖价 🪙${sellVal.toLocaleString()} · 入缸 +${sp.cps}/s · 喂猫 +${sp.exp} EXP`;
+      document.getElementById('sellCatchBtn').textContent = `卖出 🪙${sellVal}`;
+      actionsEl.classList.remove('hidden');
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function renderTabContent() {
+      const container = document.getElementById('tabContent');
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const active = btn.dataset.tab === state.activeTab;
+        btn.className = `tab-btn py-1.5 rounded-lg text-[11px] font-semibold transition ${
+          active ? 'bg-sky-500 text-slate-950 shadow' : 'text-slate-300 hover:text-white'
+        }`;
+      });
+
+      if (state.activeTab === 'play') {
+        const questsHtml = QUEST_TEMPLATES.map(q => {
+          const tier = state.questTiers[q.id] || 0;
+          const goal = Math.round(q.baseGoal * Math.pow(q.mult, tier));
+          const curVal = q.stat === 'dexCount' ? Object.keys(state.dex).length : (state.stats[q.stat] || 0);
+          const done = curVal >= goal;
+          const pct = Math.min(100, Math.round((curVal / goal) * 100));
+          const rewardC = Math.round(q.rewardCoins * Math.pow(1.9, tier));
+          return `
+            <div class="bg-slate-900/75 border ${done ? 'border-emerald-400/60' : 'border-slate-700/70'} rounded-xl p-2 flex items-center justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-slate-100">${q.title} <span class="text-[10px] text-slate-400 font-normal">${q.desc} (${Math.min(curVal, goal)}/${goal})</span></span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1">
+                  <div class="h-full ${done ? 'bg-emerald-400' : 'bg-sky-400'}" style="width:${pct}%"></div>
+                </div>
+              </div>
+              <button data-claim-quest="${q.id}" ${done ? '' : 'disabled'} class="claim-quest-btn shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+                done ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-950 animate-pulse' : 'bg-slate-800 text-slate-500'
+              }">
+                ${done ? `领 🪙${rewardC}` : `🪙${rewardC}`}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        const zonesHtml = OCEAN_ZONES.map(z => {
+          const unlocked = state.unlockedZones.includes(z.id);
+          const current = state.zoneId === z.id;
+          return `
+            <div class="bg-slate-900/70 border ${current ? 'border-sky-400/80' : 'border-slate-700/70'} rounded-xl p-2 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-lg shrink-0">${z.icon}</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-slate-100">${z.name} <span class="text-emerald-400 font-normal">×${z.mult}</span></div>
+                  <div class="text-[10px] text-slate-400 truncate">${z.desc}</div>
+                </div>
+              </div>
+              <button data-zone-id="${z.id}" class="zone-btn shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+                current ? 'bg-sky-500/20 text-sky-300 border border-sky-400/40'
+                : unlocked ? 'bg-slate-700 hover:bg-slate-600 text-white'
+                : state.coins >= z.cost ? 'bg-amber-400 hover:bg-amber-300 text-slate-950'
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+              }">
+                ${current ? '航行中' : unlocked ? '前往' : `🪙${z.cost.toLocaleString()}`}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        const earnPearls = getPrestigePearlsEarned();
+        container.innerHTML = `
+          <!-- Global Real-Time Fish Market -->
+          <div class="bg-slate-900/90 border border-amber-500/35 rounded-xl p-2.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-amber-300">📈 全服实时鱼市行情</span>
+              <span class="text-[10px] text-slate-400">影响卖鱼价 · 可低买高卖指数</span>
+            </div>
+            <div class="text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-200 px-2 py-1 rounded-lg">${escapeHtml(fishMarket.news)}</div>
+            <div class="space-y-1.5">
+              ${RARITY_ORDER.map(r => {
+                const rm = RARITY_META[r];
+                const idx = fishMarket.indices[r];
+                const diff = idx.mult - idx.prev;
+                const up = diff >= 0;
+                const pctStr = `${up ? '+' : ''}${((diff / Math.max(0.1, idx.prev)) * 100).toFixed(1)}%`;
+                const sharePrice = getMarketSharePrice(r);
+                const held = state.marketHoldings[r] || 0;
+                return `
+                  <div class="bg-slate-950/60 border border-slate-800 rounded-lg px-2 py-1.5 flex items-center justify-between gap-1.5">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${rm.badge}">${rm.tag}</span>
+                      <div class="min-w-0">
+                        <div class="text-[11px] font-bold flex items-center gap-1">
+                          <span style="color:${rm.color}">${rm.label}</span>
+                          <span class="${up ? 'text-emerald-400' : 'text-rose-400'} tabular-nums">${idx.mult.toFixed(2)}x</span>
+                          <span class="text-[9px] ${up ? 'text-emerald-400/80' : 'text-rose-400/80'}">${pctStr}</span>
+                        </div>
+                        <div class="text-[9px] text-slate-400">持仓 ${held} 份 · 单价 🪙${sharePrice.toLocaleString()}</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      ${renderSparklineSvg(idx.history, up ? '#34d399' : '#fb7185')}
+                      <button data-buy-share="${r}" class="buy-share-btn px-1.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-200 text-[10px] font-bold">买</button>
+                      <button data-sell-share="${r}" ${held <= 0 ? 'disabled' : ''} class="sell-share-btn px-1.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/35 disabled:opacity-35 border border-rose-400/40 text-rose-200 text-[10px] font-bold">卖</button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Focus Pomodoro -->
+          <div class="bg-indigo-950/60 border border-indigo-400/35 rounded-xl p-2.5 flex items-center justify-between gap-2">
+            <div>
+              <div class="text-xs font-bold text-indigo-200">⏱️ 专注摸鱼番茄钟 ${runtime.pomoActive ? `<span class="text-amber-300 ml-1">${formatSec(runtime.pomoLeftSec)}</span>` : ''}</div>
+              <div class="text-[10px] text-indigo-300/80">专注倒计时结束必爆 1 条史诗~神话海鱼 + 宝箱！</div>
+            </div>
+            <div class="flex gap-1 shrink-0">
+              ${runtime.pomoActive
+                ? `<button data-pomo-min="0" class="pomo-btn px-2.5 py-1 rounded-lg bg-rose-500/30 hover:bg-rose-500/40 text-rose-200 text-[11px] font-bold">停止</button>`
+                : `<button data-pomo-min="1" class="pomo-btn px-2 py-1 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white text-[11px] font-bold">1分试玩</button>
+                   <button data-pomo-min="25" class="pomo-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-200 text-[11px] font-semibold">25分</button>`
+              }
+            </div>
+          </div>
+
+          <div class="text-[11px] font-semibold text-emerald-300 px-0.5 pt-0.5">📜 循环悬赏任务（领金币 & 珍珠）</div>
+          <div class="space-y-1.5">${questsHtml}</div>
+
+          <div class="text-[11px] font-semibold text-sky-300 px-0.5 pt-1">🗺️ 6 大深海渔场（切换海域改变画风与收益）</div>
+          <div class="space-y-1.5">${zonesHtml}</div>
+
+          <!-- Prestige / Voyage -->
+          <div class="bg-fuchsia-950/50 border border-fuchsia-400/35 rounded-xl p-2.5 flex items-center justify-between gap-2 mt-1">
+            <div>
+              <div class="text-xs font-bold text-fuchsia-200">⛵ 远航转生（已远航 ${state.prestigeCount || 0} 次）</div>
+              <div class="text-[10px] text-fuchsia-300/80">持有 🦪 ${state.pearls || 0} 珍珠（永久全局 +${(state.pearls || 0) * 20}%）· 需 🪙50,000 起</div>
+            </div>
+            <button id="prestigeBtn" class="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition ${
+              earnPearls > 0 ? 'bg-fuchsia-400 hover:bg-fuchsia-300 text-slate-950' : 'bg-slate-800 text-slate-500'
+            }">
+              ${earnPearls > 0 ? `远航 +🦪${earnPearls}` : '未达 5万'}
+            </button>
+          </div>
+        `;
+      } else if (state.activeTab === 'shop') {
+        const categories = ['海钓装备', '海底鱼缸', '特殊奇遇'];
+        container.innerHTML = categories.map(catName => {
+          const items = UPGRADE_DEFS.filter(u => u.cat === catName).map(u => {
+            const lv = state.upgrades[u.id] || 0;
+            const cost = getUpgradeCost(u.id);
+            const canAfford = state.coins >= cost;
+            return `
+              <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-2 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0">${u.icon}</div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-bold text-slate-100">${u.name} <span class="text-sky-400">Lv.${lv}</span> <span class="text-[9px] text-slate-500">∞</span></div>
+                    <div class="text-[10px] text-slate-400 leading-tight">${u.desc}</div>
+                  </div>
+                </div>
+                <button data-upgrade-id="${u.id}" class="buy-upgrade-btn shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                  canAfford ? 'bg-amber-400 hover:bg-amber-300 text-slate-950'
+                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+                }">
+                  🪙 ${cost.toLocaleString()}
+                </button>
+              </div>
+            `;
+          }).join('');
+          return `<div class="text-[11px] font-semibold text-amber-300 px-0.5 pt-1">${catName}</div><div class="space-y-1.5">${items}</div>`;
+        }).join('');
+      } else if (state.activeTab === 'cat') {
+        const nextXp = getCatNextXp(state.cat.level);
+        const xpPct = Math.min(100, Math.round((state.cat.xp / nextXp) * 100));
+        const curEvo = getCatEvolution(state.cat.level);
+        const nextEvo = CAT_EVOLUTIONS.find(e => e.minLv > state.cat.level);
+        const cansHtml = CAT_CANS.map(c => {
+          const price = getCanPrice(c.id);
+          const canAfford = state.coins >= price;
+          return `
+            <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-2 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0">${c.icon}</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-slate-100">${c.name}</div>
+                  <div class="text-[10px] text-slate-400 leading-tight">${c.desc}</div>
+                </div>
+              </div>
+              <button data-can-id="${c.id}" class="buy-can-btn shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                canAfford ? 'bg-amber-400 hover:bg-amber-300 text-slate-950'
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+              }">
+                🪙 ${price.toLocaleString()}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        const catUpgHtml = CAT_UPGRADE_DEFS.map(u => {
+          const lv = state.catUpgrades[u.id] || 0;
+          const cost = getCatUpgradeCost(u.id);
+          const canAfford = state.coins >= cost;
+          return `
+            <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-2 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0">${u.icon}</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-slate-100 truncate">${u.name} <span class="text-fuchsia-300">Lv.${lv}</span> <span class="text-[9px] text-slate-500">∞</span></div>
+                  <div class="text-[10px] text-slate-400 leading-tight">${u.desc}</div>
+                </div>
+              </div>
+              <button data-cat-upgrade-id="${u.id}" class="buy-cat-upgrade-btn shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                canAfford ? 'bg-fuchsia-400 hover:bg-fuchsia-300 text-slate-950'
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+              }">
+                🪙 ${cost.toLocaleString()}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        const skinsHtml = CAT_SKINS.map(s => {
+          const owned = state.cat.unlockedSkins.includes(s.id);
+          const equipped = state.cat.skin === s.id;
+          return `
+            <div class="bg-slate-900/70 border ${equipped ? 'border-amber-400/70' : 'border-slate-700/70'} rounded-xl p-2 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full border-2 border-slate-500 shrink-0" style="background:${s.coat}"></div>
+                <div>
+                  <div class="text-xs font-bold text-slate-100">${s.name}</div>
+                  <div class="text-[10px] text-slate-400">${s.desc}</div>
+                </div>
+              </div>
+              <button data-skin-id="${s.id}" class="skin-btn shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                equipped ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
+                : owned ? 'bg-slate-700 hover:bg-slate-600 text-white'
+                : 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+              }">
+                ${equipped ? '使用中' : owned ? '换上' : `🪙 ${s.cost}`}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = `
+          <div class="bg-slate-900/85 border border-fuchsia-500/30 rounded-xl p-2.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-amber-300">Lv.${state.cat.level} · ✨ ${curEvo.title}</div>
+                <div class="text-[10px] text-slate-400">${nextEvo ? `下一外观进化：Lv.${nextEvo.minLv} ${nextEvo.title} (${nextEvo.desc})` : '🎉 已解锁最高海神外观形态！'}</div>
+              </div>
+              <button id="useHomemadeCanBtn" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-fuchsia-500/25 hover:bg-fuchsia-500/35 border border-fuchsia-400/40 text-fuchsia-200 text-xs font-bold transition">
+                🥫 自制罐头(${state.homemadeCans || 0})
+              </button>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                <span>升级进度</span><span>${state.cat.xp} / ${nextXp} EXP</span>
+              </div>
+              <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-amber-400 to-fuchsia-400 transition-all" style="width:${xpPct}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="text-[11px] font-semibold text-amber-300 px-0.5 pt-1">🥫 购买猫罐头与零食（无限投喂升级）</div>
+          <div class="space-y-1.5">${cansHtml}</div>
+          <div class="text-[11px] font-semibold text-fuchsia-300 px-0.5 pt-1">✨ 猫咪专属升级（无上限 · 越升越好看）</div>
+          <div class="space-y-1.5">${catUpgHtml}</div>
+          <div class="text-[11px] font-semibold text-amber-300 px-0.5 pt-1">🎨 猫咪毛色品种</div>
+          <div class="space-y-1.5">${skinsHtml}</div>
+        `;
+      } else if (state.activeTab === 'tank') {
+        if (state.tankFish.length === 0) {
+          container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">海底鱼缸空空如也，快去抛竿钓几条海鱼养起来吧 🎣</div>`;
+          return;
+        }
+        const sortedTank = [...state.tankFish].sort((a, b) => getFishById(b.speciesId).rank - getFishById(a.speciesId).rank);
+        container.innerHTML = sortedTank.map(f => {
+          const sp = getFishById(f.speciesId);
+          const rm = RARITY_META[sp.rarity];
+          const pct = Math.min(100, Math.round(f.growth));
+          const stage = pct >= 100 ? '巨无霸' : (pct >= 50 ? '成鱼' : '幼鱼');
+          const price = getFishSellPrice(f);
+          return `
+            <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-2.5 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-xl shrink-0">${sp.emoji}</div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] px-1 py-0.5 rounded ${rm.badge}">${rm.tag}</span>
+                    <span class="text-xs font-bold truncate" style="color:${rm.color}">${sp.name}</span>
+                    <span class="text-[10px] text-slate-400">${stage}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <div class="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-sky-400" style="width:${pct}%"></div>
+                    </div>
+                    <span class="text-[10px] text-emerald-400">+${(sp.cps * (pct >= 100 ? 1.8 : pct >= 50 ? 1.3 : 1)).toFixed(1)}/s</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button data-feed-uid="${f.uid}" class="feed-tank-btn px-2 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 text-[11px] font-semibold transition">
+                  喂猫
+                </button>
+                <button data-sell-uid="${f.uid}" class="sell-tank-btn px-2 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-[11px] font-semibold transition">
+                  卖 🪙${price.toLocaleString()}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else if (state.activeTab === 'dex') {
+        const unlockedCount = Object.keys(state.dex).length;
+        const filter = state.dexFilter || 'all';
+        const q = (state.dexSearch || '').trim().toLowerCase();
+
+        let filtered = FISH_SPECIES.slice().sort((a, b) => b.rank - a.rank || b.no - a.no);
+        if (filter === 'unlocked') filtered = filtered.filter(sp => !!state.dex[sp.id]);
+        else if (filter !== 'all') filtered = filtered.filter(sp => sp.rarity === filter);
+        if (q) filtered = filtered.filter(sp => sp.name.toLowerCase().includes(q) || sp.zone.toLowerCase().includes(q) || String(sp.no) === q);
+
+        const pageSize = 24;
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        const curPage = Math.min(totalPages, Math.max(1, state.dexPage || 1));
+        state.dexPage = curPage;
+        const pageItems = filtered.slice((curPage - 1) * pageSize, curPage * pageSize);
+
+        const filterPills = [
+          { id: 'all', label: `全部 900` },
+          { id: 'unlocked', label: `已解锁 ${unlockedCount}` },
+          ...RARITY_ORDER.map(r => ({ id: r, label: `${RARITY_META[r].label} ${RARITY_META[r].count}` }))
+        ].map(p => `
+          <button data-dex-filter="${p.id}" class="dex-filter-btn px-2 py-0.5 rounded-full text-[10px] font-semibold transition ${
+            filter === p.id ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }">${p.label}</button>
+        `).join('');
+
+        container.innerHTML = `
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs text-slate-300 font-semibold">🌊 海洋鱼图鉴 <span class="text-amber-300">${unlockedCount} / 900</span></span>
+              <input id="dexSearchInput" type="text" value="${escapeHtml(state.dexSearch || '')}" placeholder="搜鱼名/海域/编号..." class="w-36 bg-slate-800 border border-slate-600 rounded-lg px-2 py-0.5 text-[11px] text-white focus:outline-none focus:border-sky-400" />
+            </div>
+            <div class="flex flex-wrap gap-1">${filterPills}</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              ${pageItems.map(sp => {
+                const rec = state.dex[sp.id];
+                const rm = RARITY_META[sp.rarity];
+                if (!rec) {
+                  return `
+                    <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-2 flex items-center gap-2 opacity-65">
+                      <div class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-xs shrink-0">❓</div>
+                      <div class="min-w-0">
+                        <div class="text-[11px] font-semibold text-slate-400 truncate">#${sp.no} ${sp.name}</div>
+                        <div class="text-[9px]" style="color:${rm.color}">${rm.tag}·${rm.label} · ${sp.zone}</div>
+                      </div>
+                    </div>
+                  `;
+                }
+                return `
+                  <div class="bg-slate-900/85 border border-slate-700/80 rounded-xl p-2 flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0">${sp.emoji}</div>
+                    <div class="min-w-0">
+                      <div class="text-[11px] font-bold truncate" style="color:${rm.color}">#${sp.no} ${sp.name}</div>
+                      <div class="text-[9px] text-slate-400">${rm.tag} · ${rec.count}次 · ${rec.bestWeight}kg</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <div class="flex items-center justify-between pt-1 text-[11px] text-slate-400">
+              <button id="dexPrevBtn" ${curPage <= 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200">上一页</button>
+              <span>第 ${curPage} / ${totalPages} 页 (按稀有度排行)</span>
+              <button id="dexNextBtn" ${curPage >= totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200">下一页</button>
+            </div>
+          </div>
+        `;
+      } else if (state.activeTab === 'online') {
+        const friendRows = online.friends.map(f => {
+          const skin = CAT_SKINS.find(s => s.id === f.skin) || CAT_SKINS[0];
+          const evo = getCatEvolution(f.level || 1);
+          const statusLabel = f.fishingPhase === 'waiting' ? '🎣 海钓中' : '😺 摸鱼中';
+          return `
+            <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-2 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-7 h-7 rounded-full border border-slate-500 shrink-0" style="background:${skin.coat}"></div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-slate-100 truncate">${escapeHtml(f.nickname)} <span class="text-amber-300 font-normal">Lv.${f.level}</span></div>
+                  <div class="text-[10px] text-slate-400">${evo.title} · ${statusLabel}</div>
+                </div>
+              </div>
+              <button data-pet-friend="${f.id}" class="pet-friend-btn shrink-0 px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 text-rose-200 text-[11px] font-semibold transition">
+                🐾 摸TA猫
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        const chatRows = online.messages.slice(-8).map(m => `
+          <div class="text-[11px] leading-snug ${m.system ? 'text-amber-300/90' : 'text-slate-200'}">
+            <span class="text-slate-500 mr-1">[${m.time}]</span>
+            <span class="font-semibold ${m.system ? 'text-amber-400' : 'text-sky-300'}">${escapeHtml(m.sender)}:</span>
+            <span>${escapeHtml(m.text)}</span>
+          </div>
+        `).join('');
+
+        container.innerHTML = `
+          <div class="bg-slate-900/80 border border-slate-700/70 rounded-xl p-2.5 space-y-2">
+            <div class="grid grid-cols-2 gap-1.5">
+              <input id="nickInput" type="text" value="${escapeHtml(state.nickname)}" placeholder="你的昵称" class="bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-sky-400" />
+              <input id="roomInput" type="text" value="${escapeHtml(state.roomId)}" placeholder="房间号 (如 public)" class="bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-sky-400" />
+            </div>
+            <div class="flex gap-1.5">
+              <button id="joinRoomBtn" class="flex-1 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition">加入/切换房间</button>
+              <button id="copyInviteBtn" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-semibold transition">📋 邀请好友</button>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <div class="text-[11px] text-slate-400 px-0.5">同塘好友 (${online.friends.length + 1} 人在线 · 共享加成 +${getCoopBonusPct()}%)</div>
+            ${friendRows}
+          </div>
+          <div class="bg-slate-900/75 border border-slate-700/70 rounded-xl p-2.5 space-y-2">
+            <div class="text-[11px] font-semibold text-slate-300">💬 鱼塘实时弹幕</div>
+            <div class="space-y-1 max-h-24 overflow-y-auto custom-scroll pr-1">${chatRows}</div>
+            <div class="flex gap-1 flex-wrap">
+              <button data-quick-chat="🐟 出神话海鱼了！" class="quick-chat-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300">🐟 出神话鱼了</button>
+              <button data-quick-chat="🔥 黄金鱼潮冲冲冲" class="quick-chat-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300">🔥 黄金鱼潮</button>
+              <button data-quick-chat="❤️ 贴贴猫猫" class="quick-chat-btn px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300">❤️ 贴贴</button>
+            </div>
+            <div class="flex gap-1.5">
+              <input id="chatInput" type="text" placeholder="发一句弹幕..." class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-sky-400" />
+              <button id="sendChatBtn" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition">发送</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // =========================================================
+    // 8. Canvas Rendering (Zone-themed Ocean + Evolving Cats)
+    // =========================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let cw = 600, ch = 320;
+
+    function resizeCanvas() {
+      const rect = document.getElementById('canvasContainer').getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cw = Math.max(260, rect.width); ch = Math.max(220, rect.height);
+      canvas.width = Math.floor(cw * dpr); canvas.height = Math.floor(ch * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawCat(x, y, t, opts) {
+      const skin = CAT_SKINS.find(s => s.id === opts.skinId) || CAT_SKINS[0];
+      const sc = opts.scale || 1;
+      const lv = opts.level || 1;
+      const glam = opts.glamour || 0;
+      const breathe = Math.sin(t * 3.2 + (opts.phase || 0)) * 1.4;
+
+      ctx.save();
+      ctx.translate(x, y + breathe);
+      ctx.scale(sc, sc);
+
+      if (lv >= 8 || glam >= 2) {
+        const auraR = 30 + Math.min(18, glam * 1.4 + (lv >= 16 ? 8 : 0));
+        const grad = ctx.createRadialGradient(0, -4, 6, 0, -4, auraR);
+        if (lv >= 16) {
+          grad.addColorStop(0, 'rgba(244, 114, 182, 0.55)');
+          grad.addColorStop(0.55, 'rgba(56, 189, 248, 0.30)');
+          grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        } else if (lv >= 12) {
+          grad.addColorStop(0, 'rgba(250, 204, 21, 0.45)');
+          grad.addColorStop(1, 'rgba(250, 204, 21, 0)');
+        } else {
+          grad.addColorStop(0, 'rgba(168, 85, 247, 0.35)');
+          grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
+        }
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(0, -4, auraR, 0, Math.PI * 2); ctx.fill();
+      }
+
+      if (lv >= 12) {
+        ctx.fillStyle = lv >= 16 ? '#ec4899' : '#3b82f6';
+        ctx.beginPath(); ctx.moveTo(-16, 2); ctx.quadraticCurveTo(-28, 18, -22, 28); ctx.lineTo(14, 26); ctx.quadraticCurveTo(22, 14, 14, 2); ctx.closePath(); ctx.fill();
+      }
+
+      const tailAngle = Math.sin(t * 4.5 + (opts.phase || 0)) * 0.35;
+      ctx.save(); ctx.translate(-18, 12); ctx.rotate(tailAngle);
+      ctx.strokeStyle = skin.coat; ctx.lineWidth = 7; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(-18, -10, -14, -26); ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = skin.coat; ctx.beginPath(); ctx.ellipse(0, 12, 22, 18, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = skin.belly; ctx.beginPath(); ctx.ellipse(3, 15, 11, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+      if (lv >= 3) {
+        ctx.fillStyle = '#f43f5e';
+        ctx.beginPath(); ctx.moveTo(0, 4); ctx.lineTo(-9, 0); ctx.lineTo(-9, 8); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(0, 4); ctx.lineTo(9, 0); ctx.lineTo(9, 8); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = lv >= 8 ? '#fbbf24' : '#fda4af';
+        ctx.beginPath(); ctx.arc(0, 4, lv >= 8 ? 3.8 : 2.5, 0, Math.PI * 2); ctx.fill();
+      }
+
+      ctx.fillStyle = skin.ear;
+      ctx.beginPath(); ctx.moveTo(-16, -12); ctx.lineTo(-20, -30); ctx.lineTo(-4, -20); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(16, -12); ctx.lineTo(20, -30); ctx.lineTo(4, -20); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#fda4af';
+      ctx.beginPath(); ctx.moveTo(-14, -15); ctx.lineTo(-17, -25); ctx.lineTo(-7, -19); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(14, -15); ctx.lineTo(17, -25); ctx.lineTo(7, -19); ctx.closePath(); ctx.fill();
+
+      ctx.fillStyle = skin.coat; ctx.beginPath(); ctx.ellipse(0, -10, 21, 17, 0, 0, Math.PI * 2); ctx.fill();
+
+      ctx.strokeStyle = skin.stripe; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-4, -24); ctx.lineTo(-3, -19); ctx.moveTo(0, -25); ctx.lineTo(0, -19); ctx.moveTo(4, -24); ctx.lineTo(3, -19); ctx.stroke();
+
+      if (lv >= 3) {
+        ctx.fillStyle = 'rgba(251, 113, 133, 0.45)';
+        ctx.beginPath(); ctx.ellipse(-13, -5, 4, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(13, -5, 4, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+      }
+
+      if (lv >= 8 && lv < 12) {
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(-15, -14, 12, 7); ctx.fillRect(3, -14, 12, 7);
+        ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.6; ctx.strokeRect(-15, -14, 12, 7); ctx.strokeRect(3, -14, 12, 7);
+        ctx.beginPath(); ctx.moveTo(-3, -11); ctx.lineTo(3, -11); ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#0f172a'; ctx.fillStyle = skin.id === 'ragdoll' ? '#0284c7' : '#0f172a'; ctx.lineWidth = 2.2;
+        if (opts.happy) {
+          ctx.beginPath(); ctx.arc(-8, -10, 4, Math.PI, 0); ctx.stroke();
+          ctx.beginPath(); ctx.arc(8, -10, 4, Math.PI, 0); ctx.stroke();
+        } else if (opts.blinking) {
+          ctx.beginPath(); ctx.moveTo(-11, -10); ctx.lineTo(-5, -10); ctx.moveTo(5, -10); ctx.lineTo(11, -10); ctx.stroke();
+        } else {
+          ctx.beginPath(); ctx.arc(-8, -10, 3.3, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(8, -10, 3.3, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath(); ctx.arc(-9, -11.2, 1.2, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(7, -11.2, 1.2, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      ctx.fillStyle = '#fb7185'; ctx.beginPath(); ctx.moveTo(-2.5, -6); ctx.lineTo(2.5, -6); ctx.lineTo(0, -3.5); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(-2.5, -3.5, 2.5, 0, Math.PI * 0.85); ctx.stroke();
+      ctx.beginPath(); ctx.arc(2.5, -3.5, 2.5, Math.PI * 0.15, Math.PI); ctx.stroke();
+
+      if (lv >= 5 && lv < 12) {
+        ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.ellipse(0, -25, 22, 5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(0, -26, 12, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = '#0ea5e9'; ctx.fillRect(-12, -28, 24, 3);
+      }
+      if (lv >= 12) {
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath(); ctx.moveTo(-12, -24); ctx.lineTo(-14, -37); ctx.lineTo(-5, -30); ctx.lineTo(0, -40); ctx.lineTo(5, -30); ctx.lineTo(14, -37); ctx.lineTo(12, -24); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = lv >= 16 ? '#f472b6' : '#38bdf8'; ctx.beginPath(); ctx.arc(0, -30, 3, 0, Math.PI * 2); ctx.fill();
+      }
+
+      const sparkCount = Math.min(6, (lv >= 16 ? 4 : lv >= 12 ? 2 : 0) + Math.floor(glam / 2));
+      for (let i = 0; i < sparkCount; i++) {
+        const ang = t * 2.2 + (i * Math.PI * 2) / Math.max(1, sparkCount);
+        ctx.fillStyle = i % 2 === 0 ? '#fde047' : '#f0abfc';
+        ctx.beginPath(); ctx.arc(Math.cos(ang) * 28, -8 + Math.sin(ang) * 20, 2.2, 0, Math.PI * 2); ctx.fill();
+      }
+
+      const rodSwing = (opts.castSwing || 0) * 0.35;
+      ctx.save(); ctx.translate(16, 4); ctx.rotate(-0.55 - rodSwing);
+      ctx.strokeStyle = lv >= 16 ? '#f472b6' : lv >= 12 ? '#fbbf24' : lv >= 5 ? '#38bdf8' : '#d97706';
+      ctx.lineWidth = lv >= 12 ? 3.8 : 3.2;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(62, -20); ctx.stroke();
+      ctx.restore();
+
+      if (opts.label) {
+        ctx.font = 'bold 11px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = opts.isSelf ? '#fde047' : '#bae6fd';
+        ctx.fillText(opts.label, 0, lv >= 12 ? -45 : -38);
+      }
+      ctx.restore();
+    }
+
+    function drawFishSprite(f, t, isShared = false) {
+      const sp = getFishById(f.speciesId);
+      const fx = f.x * cw;
+      const fy = f.y * ch + Math.sin(t * 3 + f.phase) * 3;
+      const scale = 0.68 + ((f.growth || 50) / 100) * 0.45;
+      const r = sp.size * scale;
+      const dir = f.vx >= 0 ? 1 : -1;
+
+      ctx.save(); ctx.translate(fx, fy); ctx.scale(dir, 1);
+      const wag = Math.sin(t * 9 + f.phase) * 4;
+      if (sp.shape === 'jelly') {
+        ctx.fillStyle = sp.bodyColor; ctx.beginPath(); ctx.arc(0, 0, r * 0.72, Math.PI, 0); ctx.fill();
+        ctx.strokeStyle = sp.finColor; ctx.lineWidth = 2;
+        for (let k = -2; k <= 2; k++) {
+          ctx.beginPath(); ctx.moveTo(k * r * 0.22, 0); ctx.quadraticCurveTo(k * r * 0.25 + wag * 0.5, r * 0.6, k * r * 0.2, r * 1.1); ctx.stroke();
+        }
+      } else {
+        const aspect = sp.shape === 'long' ? 0.34 : sp.shape === 'slim' ? 0.45 : sp.shape === 'flat' ? 0.8 : 0.62;
+        ctx.fillStyle = sp.finColor;
+        ctx.beginPath(); ctx.moveTo(-r * 0.85, 0); ctx.lineTo(-r * 1.55, -r * 0.55 + wag); ctx.lineTo(-r * 1.55, r * 0.55 + wag); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = sp.bodyColor; ctx.beginPath(); ctx.ellipse(0, 0, r, r * aspect, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = sp.finColor;
+        ctx.beginPath(); ctx.moveTo(-r * 0.2, -r * aspect * 0.85); ctx.quadraticCurveTo(r * 0.1, -r * (aspect + 0.45), r * 0.38, -r * aspect * 0.8); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(r * 0.45, -r * 0.12, Math.max(2, r * 0.16), 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(r * 0.52, -r * 0.12, Math.max(1.1, r * 0.09), 0, Math.PI * 2); ctx.fill();
+      }
+      if (sp.rarity === 'mythic' || sp.rarity === 'legendary' || isShared) {
+        ctx.fillStyle = sp.rarity === 'mythic' ? 'rgba(244, 114, 182, 0.9)' : isShared ? 'rgba(56, 189, 248, 0.75)' : 'rgba(254, 240, 138, 0.85)';
+        ctx.beginPath(); ctx.arc(Math.sin(t * 5 + f.phase) * r * 0.6, -r * 0.78, 2.2, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function renderScene(t) {
+      const waterY = ch * 0.46;
+      const zone = getCurrentZone();
+
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, waterY);
+      skyGrad.addColorStop(0, zone.skyTop);
+      skyGrad.addColorStop(1, zone.skyBot);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, cw, waterY);
+
+      ctx.fillStyle = '#fef3c7'; ctx.beginPath(); ctx.arc(cw * 0.88, ch * 0.14, 15, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = zone.skyTop; ctx.beginPath(); ctx.arc(cw * 0.88 + 5, ch * 0.14 - 3, 13, 0, Math.PI * 2); ctx.fill();
+
+      const dockW = cw * 0.50;
+      ctx.fillStyle = '#78350f'; ctx.fillRect(0, waterY - 12, dockW, 14);
+      ctx.fillStyle = '#92400e'; ctx.fillRect(0, waterY - 14, dockW, 5);
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(cw * 0.08, waterY, 9, ch - waterY);
+      ctx.fillRect(cw * 0.28, waterY, 9, ch - waterY);
+      ctx.fillRect(cw * 0.44, waterY, 9, ch - waterY);
+
+      const myCatX = cw * 0.14;
+      const myCatY = waterY - 36;
+      drawCat(myCatX, myCatY, t, {
+        skinId: state.cat.skin, level: state.cat.level, glamour: state.catUpgrades.glamour || 0,
+        scale: 0.92, happy: catAnim.happyTimer > 0, blinking: catAnim.blinking, castSwing: catAnim.castSwing,
+        label: state.nickname, isSelf: true, phase: 0
+      });
+
+      online.friends.slice(0, 2).forEach((fr, idx) => {
+        drawCat(cw * (0.28 + idx * 0.13), waterY - 32, t, {
+          skinId: fr.skin, level: fr.level || 1, glamour: fr.glamour || 0,
+          scale: 0.78, happy: fr.happyTimer > 0, blinking: false, castSwing: 0,
+          label: fr.nickname.replace('(好友演示)', ''), isSelf: false, phase: (idx + 1) * 1.4
+        });
+      });
+
+      const waterGrad = ctx.createLinearGradient(0, waterY, 0, ch);
+      waterGrad.addColorStop(0, runtime.feverLeft > 0 ? 'rgba(217, 119, 6, 0.78)' : zone.waterTop);
+      waterGrad.addColorStop(0.5, zone.waterMid);
+      waterGrad.addColorStop(1, 'rgba(8, 20, 42, 0.99)');
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(0, waterY, cw, ch - waterY);
+
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(0, ch - 18, cw, 18);
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.45)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      for (let i = 0; i < 6; i++) {
+        const sx = cw * (0.12 + i * 0.16);
+        const sway = Math.sin(t * 2 + i) * 8;
+        ctx.beginPath(); ctx.moveTo(sx, ch - 12); ctx.quadraticCurveTo(sx + sway, ch - 42, sx + sway * 1.4, ch - 68); ctx.stroke();
+      }
+
+      for (const sf of online.sharedFish) drawFishSprite(sf, t, true);
+      for (const f of state.tankFish) drawFishSprite(f, t, false);
+
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.45)'; ctx.lineWidth = 1.2;
+      for (const b of bubbles) { ctx.beginPath(); ctx.arc(b.x * cw, b.y * ch, b.r, 0, Math.PI * 2); ctx.stroke(); }
+
+      ctx.strokeStyle = runtime.feverLeft > 0 ? 'rgba(253, 224, 71, 0.9)' : 'rgba(125, 211, 252, 0.65)';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let x = 0; x <= cw; x += 12) {
+        const wy = waterY + Math.sin(x * 0.03 + t * 3) * 2.5;
+        if (x === 0) ctx.moveTo(x, wy); else ctx.lineTo(x, wy);
+      }
+      ctx.stroke();
+
+      online.friends.slice(0, 2).forEach((fr, idx) => {
+        if (fr.fishingPhase !== 'waiting') return;
+        const fx = cw * (0.28 + idx * 0.13) + 46, fy = waterY - 62;
+        const bx = fr.bobberX * cw, by = waterY + 4 + Math.sin(t * 4 + idx) * 2;
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.quadraticCurveTo((fx + bx) / 2, waterY - 18, bx, by); ctx.stroke();
+        ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(bx, by, 4, 0, Math.PI * 2); ctx.fill();
+      });
+
+      const rodTipX = myCatX + 54, rodTipY = myCatY - 40;
+      if (fishing.phase === 'waiting' || fishing.phase === 'biting') {
+        const bx = fishing.bobberX * cw;
+        const biteDip = fishing.phase === 'biting' ? Math.sin(t * 28) * 6 + 6 : Math.sin(t * 4) * 2;
+        const by = waterY + 4 + biteDip;
+        ctx.strokeStyle = 'rgba(226, 232, 240, 0.7)'; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(rodTipX, rodTipY); ctx.quadraticCurveTo((rodTipX + bx) / 2, waterY - 22, bx, by); ctx.stroke();
+        const rippleR = fishing.phase === 'biting' ? 14 + ((t * 40) % 18) : 6 + ((t * 14) % 10);
+        ctx.strokeStyle = fishing.phase === 'biting' ? 'rgba(251, 113, 133, 0.8)' : 'rgba(186, 230, 253, 0.5)';
+        ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(bx, waterY + 4, rippleR, rippleR * 0.3, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(bx, by, 5.5, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.arc(bx, by, 5.5, 0, Math.PI); ctx.fill();
+      }
+
+      ctx.font = 'bold 13px Inter, sans-serif'; ctx.textAlign = 'center';
+      for (const p of particles) {
+        ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x * cw, p.y * ch);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // =========================================================
+    // 9. Main Loop
+    // =========================================================
+    let lastTime = performance.now();
+    let uiTickAccum = 0, saveTickAccum = 0, rafId = null;
+
+    function tick(now) {
+      const dt = Math.min(0.1, (now - lastTime) / 1000);
+      lastTime = now;
+      const t = now / 1000;
+
+      state.coins += getTotalCps() * dt;
+      state.cat.mood = Math.max(20, state.cat.mood - 0.12 * dt);
+      state.cat.hunger = Math.max(15, state.cat.hunger - 0.15 * dt);
+      if (catAnim.happyTimer > 0) catAnim.happyTimer = Math.max(0, catAnim.happyTimer - dt);
+      if (catAnim.castSwing > 0) catAnim.castSwing = Math.max(0, catAnim.castSwing - dt * 3);
+      catAnim.blinkTimer -= dt;
+      if (catAnim.blinkTimer <= 0) {
+        catAnim.blinking = !catAnim.blinking;
+        catAnim.blinkTimer = catAnim.blinking ? 0.14 : 2.2 + Math.random() * 2.5;
+      }
+
+      // Fever countdown
+      if (runtime.feverLeft > 0) {
+        runtime.feverLeft = Math.max(0, runtime.feverLeft - dt);
+        if (runtime.feverLeft === 0) showToast('黄金鱼潮结束了，继续钓鱼充能吧！', 'info');
+      }
+
+      // Pomodoro countdown
+      if (runtime.pomoActive) {
+        runtime.pomoLeftSec -= dt;
+        if (runtime.pomoLeftSec <= 0) {
+          runtime.pomoActive = false;
+          const rewardFish = rollFish(true, 'epic');
+          recordDex(rewardFish.speciesId, rewardFish.weight);
+          state.pendingCatch = rewardFish;
+          state.chests = (state.chests || 0) + 1;
+          const bonusGold = Math.round(350 * getGlobalMultiplier());
+          state.coins += bonusGold;
+          playSound('catch');
+          const sp = getFishById(rewardFish.speciesId);
+          showModal('⏱️ 专注摸鱼完成！', `恭喜完成专注！获得【${RARITY_META[sp.rarity].label}】${sp.name} + 🪙${bonusGold.toLocaleString()} + 1个沉船宝箱 🎁`, false);
+          renderCatchCard(); renderHeader(); renderTabContent(); saveGame();
+        }
+      }
+
+      if (fishing.phase === 'waiting') {
+        fishing.timer -= dt;
+        if (fishing.timer <= 0) {
+          fishing.phase = 'biting'; fishing.biteWindow = 2.6;
+          playSound('bite'); updateFishingUI();
+        }
+      } else if (fishing.phase === 'biting') {
+        fishing.biteWindow -= dt;
+        if (fishing.biteWindow <= 0) {
+          fishing.phase = 'idle'; showToast('海鱼跑掉了，下次咬钩时手快一点！', 'warn'); updateFishingUI();
+        }
+      }
+
+      if ((state.upgrades.autoFish || 0) > 0) {
+        const interval = Math.max(1.6, 8.2 - state.upgrades.autoFish * 0.6);
+        fishing.autoTimer += dt;
+        if (fishing.autoTimer >= interval) {
+          fishing.autoTimer = 0;
+          triggerAutoFish();
+        }
+      }
+
+      online.friends.forEach((fr) => { if (fr.happyTimer > 0) fr.happyTimer = Math.max(0, fr.happyTimer - dt); });
+
+      const growthSpeed = (1.6 + (state.upgrades.fishFood || 0) * 0.4) * dt;
+      for (let i = state.tankFish.length - 1; i >= 0; i--) {
+        const f = state.tankFish[i];
+        f.x += f.vx * dt; f.y += f.vy * dt;
+        if (f.x < 0.08) { f.x = 0.08; f.vx = Math.abs(f.vx); }
+        if (f.x > 0.92) { f.x = 0.92; f.vx = -Math.abs(f.vx); }
+        if (f.y < 0.54) { f.y = 0.54; f.vy = Math.abs(f.vy); }
+        if (f.y > 0.90) { f.y = 0.90; f.vy = -Math.abs(f.vy); }
+        if (f.growth < 100) f.growth = Math.min(100, f.growth + growthSpeed);
+        // Smart auto-sell maxed common/uncommon fish when tank is full & autoSell unlocked
+        if ((state.upgrades.autoSell || 0) > 0 && f.growth >= 100 && state.tankFish.length >= getTankCapacity() && getFishById(f.speciesId).rank <= 2) {
+          const p = getFishSellPrice(f);
+          state.coins += p;
+          state.tankFish.splice(i, 1);
+          spawnParticles(f.x, f.y, `🤖+🪙${p}`, '#34d399');
+        }
+      }
+      for (const sf of online.sharedFish) {
+        sf.x += sf.vx * dt; sf.y += sf.vy * dt;
+        if (sf.x < 0.08) { sf.x = 0.08; sf.vx = Math.abs(sf.vx); }
+        if (sf.x > 0.92) { sf.x = 0.92; sf.vx = -Math.abs(sf.vx); }
+        if (sf.y < 0.54) { sf.y = 0.54; sf.vy = Math.abs(sf.vy); }
+        if (sf.y > 0.90) { sf.y = 0.90; sf.vy = -Math.abs(sf.vy); }
+      }
+
+      for (const b of bubbles) {
+        b.y -= b.speed * dt;
+        if (b.y < 0.47) { b.y = 0.96; b.x = Math.random(); }
+      }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]; p.y += p.vy * dt; p.life -= dt * 0.9;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      renderScene(t);
+
+      uiTickAccum += dt;
+      if (uiTickAccum >= 0.5) {
+        uiTickAccum = 0;
+        renderHeader();
+        if (state.activeTab === 'tank' || state.activeTab === 'shop' || state.activeTab === 'play') {
+          renderTabContent();
+        }
+      }
+
+      if (online.mode === 'demo') {
+        fishMarket.tickAccum += dt;
+        if (fishMarket.tickAccum >= 3.5) {
+          fishMarket.tickAccum = 0;
+          stepLocalFishMarket();
+        }
+      }
+
+      saveTickAccum += dt;
+      if (saveTickAccum >= 8) { saveTickAccum = 0; saveGame(); }
+
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // =========================================================
+    // 10. Events & Init
+    // =========================================================
+    function applyWidgetMode() {
+      const shell = document.getElementById('appShell');
+      const grid = document.getElementById('mainGrid');
+      const sceneCol = document.getElementById('sceneCol');
+      const panelCol = document.getElementById('panelCol');
+      const btn = document.getElementById('toggleModeBtn');
+      if (state.widgetMode) {
+        shell.classList.add('widget-mode-shell');
+        grid.className = 'grid grid-cols-1 gap-3';
+        sceneCol.className = 'flex flex-col gap-3';
+        panelCol.className = 'glass-panel rounded-2xl p-3 flex flex-col h-[360px]';
+        btn.textContent = '🖥️ 展开';
+      } else {
+        shell.classList.remove('widget-mode-shell');
+        grid.className = 'grid grid-cols-1 lg:grid-cols-12 gap-3';
+        sceneCol.className = 'lg:col-span-7 flex flex-col gap-3';
+        panelCol.className = 'lg:col-span-5 glass-panel rounded-2xl p-3 flex flex-col h-[480px] lg:h-[530px]';
+        btn.textContent = '🪟 小窗';
+      }
+      setTimeout(resizeCanvas, 60);
+    }
+
+    function bindEvents() {
+      document.getElementById('fishBtn').addEventListener('click', handleFishingAction);
+      document.getElementById('petBtn').addEventListener('click', petCat);
+      document.getElementById('feverBtn').addEventListener('click', activateFever);
+      document.getElementById('openChestBtn').addEventListener('click', openTreasureChest);
+      document.getElementById('keepFishBtn').addEventListener('click', keepPendingFish);
+      document.getElementById('feedCatBtn').addEventListener('click', feedPendingFish);
+      document.getElementById('craftCanBtn').addEventListener('click', craftCanFromPending);
+      document.getElementById('sellCatchBtn').addEventListener('click', sellPendingFish);
+      document.getElementById('roomBadgeBtn').addEventListener('click', () => { state.activeTab = 'online'; renderTabContent(); });
+      document.getElementById('marketHeaderBtn').addEventListener('click', () => { state.activeTab = 'play'; renderTabContent(); });
+
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        if (nx < 0.22 && ny < 0.48) petCat();
+        else if (nx < 0.48 && ny < 0.48 && online.friends.length > 0) petFriendCat(online.friends[nx < 0.35 ? 0 : Math.min(1, online.friends.length - 1)].id);
+        else handleFishingAction();
+      });
+
+      window.addEventListener('keydown', (e) => {
+        const tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (e.code === 'Space' && document.getElementById('modalOverlay').classList.contains('hidden')) {
+          e.preventDefault(); handleFishingAction();
+        }
+      });
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => { state.activeTab = btn.dataset.tab; renderTabContent(); });
+      });
+
+      document.getElementById('tabContent').addEventListener('click', (e) => {
+        const sellBtn = e.target.closest('.sell-tank-btn');
+        if (sellBtn) { sellTankFish(sellBtn.dataset.sellUid); return; }
+
+        const feedTankBtn = e.target.closest('.feed-tank-btn');
+        if (feedTankBtn) { feedTankFish(feedTankBtn.dataset.feedUid); return; }
+
+        const upgBtn = e.target.closest('.buy-upgrade-btn');
+        if (upgBtn && !upgBtn.disabled) { buyUpgrade(upgBtn.dataset.upgradeId); return; }
+
+        const catUpgBtn = e.target.closest('.buy-cat-upgrade-btn');
+        if (catUpgBtn && !catUpgBtn.disabled) { buyCatUpgrade(catUpgBtn.dataset.catUpgradeId); return; }
+
+        const buyCanBtn = e.target.closest('.buy-can-btn');
+        if (buyCanBtn) { buyCatCan(buyCanBtn.dataset.canId); return; }
+        if (e.target.closest('#useHomemadeCanBtn')) { useHomemadeCan(); return; }
+
+        const skinBtn = e.target.closest('.skin-btn');
+        if (skinBtn) { selectOrBuySkin(skinBtn.dataset.skinId); return; }
+
+        const zoneBtn = e.target.closest('.zone-btn');
+        if (zoneBtn) { unlockOrSwitchZone(zoneBtn.dataset.zoneId); return; }
+
+        const buyShareBtn = e.target.closest('.buy-share-btn');
+        if (buyShareBtn) { buyMarketShare(buyShareBtn.dataset.buyShare); return; }
+
+        const sellShareBtn = e.target.closest('.sell-share-btn');
+        if (sellShareBtn && !sellShareBtn.disabled) { sellMarketShare(sellShareBtn.dataset.sellShare); return; }
+
+        const questBtn = e.target.closest('.claim-quest-btn');
+        if (questBtn && !questBtn.disabled) { claimQuest(questBtn.dataset.claimQuest); return; }
+
+        const pomoBtn = e.target.closest('.pomo-btn');
+        if (pomoBtn) { togglePomodoro(Number(pomoBtn.dataset.pomoMin)); return; }
+
+        if (e.target.closest('#prestigeBtn')) { doPrestige(); return; }
+
+        const petFriendBtn = e.target.closest('.pet-friend-btn');
+        if (petFriendBtn) { petFriendCat(petFriendBtn.dataset.petFriend); return; }
+
+        const qChatBtn = e.target.closest('.quick-chat-btn');
+        if (qChatBtn) { sendChat(qChatBtn.dataset.quickChat); return; }
+
+        const dexFilterBtn = e.target.closest('.dex-filter-btn');
+        if (dexFilterBtn) { state.dexFilter = dexFilterBtn.dataset.dexFilter; state.dexPage = 1; renderTabContent(); return; }
+        if (e.target.closest('#dexPrevBtn')) { state.dexPage = Math.max(1, (state.dexPage || 1) - 1); renderTabContent(); return; }
+        if (e.target.closest('#dexNextBtn')) { state.dexPage = (state.dexPage || 1) + 1; renderTabContent(); return; }
+
+        if (e.target.closest('#joinRoomBtn')) { joinRoom(document.getElementById('nickInput')?.value, document.getElementById('roomInput')?.value); return; }
+        if (e.target.closest('#copyInviteBtn')) { copyInviteLink(); return; }
+        if (e.target.closest('#sendChatBtn')) {
+          const inp = document.getElementById('chatInput');
+          if (inp && inp.value.trim()) { sendChat(inp.value); inp.value = ''; }
+        }
+      });
+
+      document.getElementById('tabContent').addEventListener('input', (e) => {
+        if (e.target.id === 'dexSearchInput') {
+          state.dexSearch = e.target.value; state.dexPage = 1;
+          const pos = e.target.selectionStart;
+          renderTabContent();
+          const newInp = document.getElementById('dexSearchInput');
+          if (newInp) { newInp.focus(); newInp.setSelectionRange(pos, pos); }
+        }
+      });
+
+      document.getElementById('tabContent').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.id === 'chatInput') { sendChat(e.target.value); e.target.value = ''; }
+      });
+
+      document.getElementById('toggleModeBtn').addEventListener('click', () => { state.widgetMode = !state.widgetMode; applyWidgetMode(); saveGame(); });
+      document.getElementById('muteBtn').addEventListener('click', () => {
+        state.muted = !state.muted;
+        document.getElementById('muteBtn').textContent = state.muted ? '🔇 静音' : '🔊 音效';
+        saveGame();
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        showModal('重置游戏进度', '确定要清空所有金币、珍珠、海域、猫咪等级和900种海鱼图鉴重新开始吗？', true, () => {
+          state = createDefaultState(); fishing.phase = 'idle'; runtime.feverLeft = 0; runtime.pomoActive = false;
+          saveGame(); applyWidgetMode(); renderHeader(); renderCatchCard(); updateFishingUI(); renderTabContent();
+          showToast('进度已重置，重新开始海钓摸鱼吧！', 'info');
+        });
+      });
+
+      document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
+      document.getElementById('modalConfirmBtn').addEventListener('click', () => { const cb = modalCallback; closeModal(); if (cb) cb(); });
+      window.addEventListener('resize', resizeCanvas);
+    }
+
+    window.onload = () => {
+      loadGame();
+      const qsRoom = new URLSearchParams(window.location.search).get('room');
+      if (qsRoom) state.roomId = qsRoom.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16) || 'public';
+      connectWebSocket();
+      setInterval(() => { if (online.connected) syncMyStateToServer(); }, 5000);
+      document.getElementById('muteBtn').textContent = state.muted ? '🔇 静音' : '🔊 音效';
+      bindEvents();
+      applyWidgetMode();
+      resizeCanvas();
+      renderHeader();
+      renderCatchCard();
+      updateFishingUI();
+      renderTabContent();
+      if (rafId) cancelAnimationFrame(rafId);
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(tick);
+    };
+  </script>
+</body>
+</html>
